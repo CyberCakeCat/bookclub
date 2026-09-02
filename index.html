@@ -169,18 +169,20 @@ textarea{resize:vertical;min-height:56px;font-family:var(--font-body);}
 @media (max-width:640px){
   .app-header{padding:16px 16px 0;}
   main,.app-footer{padding-left:16px;padding-right:16px;}
-  body{padding-bottom:calc(72px + env(safe-area-inset-bottom));}
   .tabs{
-    position:fixed;left:0;right:0;bottom:0;z-index:40;
-    border-bottom:none;border-top:1px solid var(--border);
-    background:var(--surface);box-shadow:0 -2px 10px var(--shadow);
-    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
-    overflow-x:visible;justify-content:space-around;gap:0;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+    border-bottom:none;overflow-x:visible;padding:0 16px;margin:14px 0 6px;
   }
-  .tab-btn{flex-direction:column;align-items:stretch;justify-content:flex-start;flex:1;min-width:0;gap:2px;padding:6px 2px;font-size:0.62rem;line-height:1.15;text-align:center;white-space:normal;overflow:hidden;border-bottom:none;}
-  .tab-btn .icon{width:20px;height:20px;align-self:center;}
+  .tab-btn{
+    flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;min-width:0;padding:12px 4px;font-size:0.74rem;line-height:1.2;
+    text-align:center;white-space:normal;overflow:hidden;
+    border:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:12px;
+    background:var(--surface);color:var(--ink-muted);
+  }
+  .tab-btn .icon{width:19px;height:19px;}
   .tab-btn span{width:100%;overflow-wrap:break-word;}
-  .tab-btn.active{background:none;}
+  .tab-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
   .brand{gap:6px;}
   .brand h1{font-size:1.5rem;}
   .place{font-size:0.68rem;}
