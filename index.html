@@ -354,7 +354,7 @@ async function upsertMember(name){
   const ref = db.doc('members/'+id);
   const snap = await ref.get();
   if(!snap.exists){
-    await ref.set({displayName:name, reading:'', interests:'', joinedAt:new Date().toISOString()});
+    await ref.set({displayName:name, reading:'', joinedAt:new Date().toISOString()});
   }
 }
 
@@ -712,7 +712,6 @@ function renderMembers(){
       return '<div class="member-card">'+
         '<div class="member-name">'+esc(p.displayName)+'</div>'+
         (p.reading? '<div class="member-line"><span class="highlight-label">читает</span> '+esc(p.reading)+'</div>' : '')+
-        (p.interests? '<div class="member-line"><span class="highlight-label">интересы</span> '+esc(p.interests)+'</div>' : '')+
         (isMe? '<button class="btn-ghost" data-edit-member="'+p.id+'">редактировать</button>' : '')+
       '</div>';
     }).join('')+'</div>';
@@ -726,13 +725,11 @@ function openEditMemberModal(id){
   openModal(
     '<h3>Обновить профиль</h3>'+
     '<div class="field"><label>Сейчас читаю</label><input id="p-reading" type="text" value="'+esc(p.reading||'')+'"/></div>'+
-    '<div class="field"><label>Интересы</label><input id="p-interests" type="text" value="'+esc(p.interests||'')+'"/></div>'+
     '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="p-save">Сохранить</button></div>'
   );
   document.getElementById('p-save').addEventListener('click', async ()=>{
     await db.doc('members/'+id).update({
-      reading: document.getElementById('p-reading').value.trim(),
-      interests: document.getElementById('p-interests').value.trim()
+      reading: document.getElementById('p-reading').value.trim()
     });
     closeModal();
     toast('Профиль обновлён');
@@ -844,13 +841,13 @@ async function seedIfNeeded(){
   ];
 
   const members = [
-    {id:'julia', displayName:'Julia', reading:'Пелевин, «Непобедимое солнце»', interests:'нон-фикшн о психологии и внимании, кулинария и разработка рецептов; курсирует между Лондоном и Стамбулом, где растут её сыновья'},
-    {id:'eugene', displayName:'Eugene', reading:'', interests:'заядлый читатель — 674 книги на Goodreads, философия и Делёз; по вторникам практикует интервальное голодание вместе с Юлией'},
-    {id:'hexen', displayName:'Hexen (Лена)', reading:'«Мова»', interests:'мотор клуба — организует встречи и голосования, находит все книги в epub; больше 10 лет играет в покер, любит настолки, гуляет по паркам Ричмонда с собакой Марой'},
-    {id:'dima', displayName:'Dima', reading:'', interests:'из Беларуси — переводит и поясняет белорусские реалии в «Мове»; часто задерживается на работе и пропускает будние встречи из-за корпоративных мероприятий'},
-    {id:'dina', displayName:'Dina', reading:'', interests:'прокладывает маршруты и уточняет детали перед встречами, дарит клубу шоколад и новогоднее настроение'},
-    {id:'yesbol', displayName:'Yesbol', reading:'', interests:'тянет клуб в сторону науки — предлагает книги о сложных системах и квантовой механике; доедает оливье ещё неделю после Нового года'},
-    {id:'veronika', displayName:'Veronika Morozova', reading:'', interests:'присоединилась в сентябре 2026 — читает десятками книг в год и щедро делится списками, от Джеймса Клавелла до Роулинг под псевдонимом Гэлбрейт'}
+    {id:'julia', displayName:'Julia', reading:'Пелевин, «Непобедимое солнце»'},
+    {id:'eugene', displayName:'Eugene', reading:''},
+    {id:'hexen', displayName:'Hexen (Лена)', reading:'«Мова»'},
+    {id:'dima', displayName:'Dima', reading:''},
+    {id:'dina', displayName:'Dina', reading:''},
+    {id:'yesbol', displayName:'Yesbol', reading:''},
+    {id:'veronika', displayName:'Veronika', reading:''}
   ];
 
   const extras = [
