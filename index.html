@@ -168,7 +168,19 @@ textarea{resize:vertical;min-height:56px;font-family:var(--font-body);}
 
 @media (max-width:640px){
   .app-header{padding:16px 16px 0;}
-  .tabs,main,.app-footer{padding-left:16px;padding-right:16px;}
+  main,.app-footer{padding-left:16px;padding-right:16px;}
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom));}
+  .tabs{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    border-bottom:none;border-top:1px solid var(--border);
+    background:var(--surface);box-shadow:0 -2px 10px var(--shadow);
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    overflow-x:visible;justify-content:space-around;gap:0;
+  }
+  .tab-btn{flex-direction:column;align-items:stretch;justify-content:flex-start;flex:1;min-width:0;gap:2px;padding:6px 2px;font-size:0.62rem;line-height:1.15;text-align:center;white-space:normal;overflow:hidden;border-bottom:none;}
+  .tab-btn .icon{width:20px;height:20px;align-self:center;}
+  .tab-btn span{width:100%;overflow-wrap:break-word;}
+  .tab-btn.active{background:none;}
   .brand{gap:6px;}
   .brand h1{font-size:1.5rem;}
   .place{font-size:0.68rem;}
@@ -353,24 +365,25 @@ let rsvpCache = {}, rsvpUnsubs = {};
 let extraFilter = 'all', extraSeason = 'all';
 
 const TAB_META = [
-  {key:'history', label:'Предыстория', icon:'bridge'},
-  {key:'books', label:'Библиотека', icon:'book'},
-  {key:'votes', label:'Голосование', icon:'vote'},
+  {key:'history', label:'История', icon:'bridge'},
+  {key:'books', label:'Книги', icon:'book'},
+  {key:'votes', label:'Опросы', icon:'vote'},
   {key:'meetings', label:'Встречи', icon:'calendar'},
-  {key:'members', label:'Участники', icon:'people'},
+  {key:'members', label:'Люди', icon:'people'},
   {key:'extras', label:'Вне книг', icon:'compass'}
 ];
 
+function setActiveTab(key){
+  activeTab = key;
+  document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===key));
+  document.querySelectorAll('.tab-panel').forEach(p=>{ p.hidden = p.id !== 'panel-'+key; });
+  renderActiveTab();
+}
 function wireTabs(){
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     const meta = TAB_META.find(t=>t.key===btn.dataset.tab);
     btn.innerHTML = icon(meta.icon)+'<span>'+meta.label+'</span>';
-    btn.addEventListener('click', ()=>{
-      activeTab = btn.dataset.tab;
-      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
-      document.querySelectorAll('.tab-panel').forEach(p=>{ p.hidden = p.id !== 'panel-'+activeTab; });
-      renderActiveTab();
-    });
+    btn.addEventListener('click', ()=> setActiveTab(btn.dataset.tab));
   });
 }
 function renderActiveTab(){
