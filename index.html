@@ -703,7 +703,8 @@ function openAddMeetingModal(name){
 // ---- members ----
 function renderMembers(){
   const panel = document.getElementById('panel-members');
-  let html = '<div class="section-head"><h2>Участники</h2><span class="book-meta">'+membersCache.length+' человек</span></div>';
+  let html = '<div class="section-head"><h2>Участники</h2><button class="btn btn-primary" id="add-self-btn">'+icon('plus')+'<span>Добавить себя</span></button></div>';
+  html += '<div class="book-meta" style="margin-bottom:14px;">'+membersCache.length+' человек</div>';
   if(!membersCache.length){
     html += '<div class="empty">Пока никто не представился.</div>';
   } else {
@@ -712,25 +713,34 @@ function renderMembers(){
       return '<div class="member-card">'+
         '<div class="member-name">'+esc(p.displayName)+'</div>'+
         (p.reading? '<div class="member-line"><span class="highlight-label">читает</span> '+esc(p.reading)+'</div>' : '')+
+        (p.favorites? '<div class="member-line"><span class="highlight-label">любимые книги</span> '+esc(p.favorites)+'</div>' : '')+
+        (p.description? '<div class="member-line"><span class="highlight-label">о себе</span> '+esc(p.description)+'</div>' : '')+
         (isMe? '<button class="btn-ghost" data-edit-member="'+p.id+'">редактировать</button>' : '')+
       '</div>';
     }).join('')+'</div>';
   }
   panel.innerHTML = html;
+  document.getElementById('add-self-btn').addEventListener('click', ()=>{
+    requireName(name=> openEditMemberModal(slugify(name)));
+  });
   panel.querySelectorAll('[data-edit-member]').forEach(btn=> btn.addEventListener('click', ()=> openEditMemberModal(btn.dataset.editMember)));
 }
 function openEditMemberModal(id){
-  const p = membersCache.find(x=>x.id===id);
-  if(!p) return;
+  const p = membersCache.find(x=>x.id===id) || {id, displayName:getMyName(), reading:'', description:''};
   openModal(
     '<h3>Обновить профиль</h3>'+
-    '<div class="field"><label>Сейчас читаю</label><input id="p-reading" type="text" value="'+esc(p.reading||'')+'"/></div>'+
+    '<div class="field"><label>Сейчас читаю</label><input id="p-reading" type="text" maxlength="120" value="'+esc(p.reading||'')+'"/></div>'+
+    '<div class="field"><label>Любимые книги (одна или несколько, через запятую)</label><input id="p-fav" type="text" maxlength="160" placeholder="Например: Мастер и Маргарита, Атлас сердца" value="'+esc(p.favorites||'')+'"/></div>'+
+    '<div class="field"><label>О себе (необязательно, пишешь только ты сам(а))</label><textarea id="p-desc" maxlength="200" placeholder="Пара слов о себе">'+esc(p.description||'')+'</textarea></div>'+
     '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="p-save">Сохранить</button></div>'
   );
   document.getElementById('p-save').addEventListener('click', async ()=>{
-    await db.doc('members/'+id).update({
-      reading: document.getElementById('p-reading').value.trim()
-    });
+    await db.doc('members/'+id).set({
+      displayName: p.displayName || getMyName(),
+      reading: document.getElementById('p-reading').value.trim(),
+      favorites: document.getElementById('p-fav').value.trim(),
+      description: document.getElementById('p-desc').value.trim()
+    }, {merge:true});
     closeModal();
     toast('Профиль обновлён');
   });
