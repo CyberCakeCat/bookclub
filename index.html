@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Книжный клуб под мостом</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%89%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EAE3D6; --surface:#FBF8F1; --surface-2:#F1EAD9; --ink:#26201B; --ink-muted:#6E6255;
+  --border:#DCD2BE; --accent:#7A2A38; --accent-ink:#FBF8F1; --accent-2:#3E6B4C; --accent-2-ink:#FBF8F1;
+  --gold:#8C6A24; --gold-bg:#F1E3C2; --warn:#B1472F; --warn-bg:#F3DAD1; --shadow:rgba(38,32,27,0.12);
+  --font-display:'PT Serif',Georgia,'Times New Roman',serif;
+  --font-body:'Manrope','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1A1712; --surface:#231F19; --surface-2:#2B261F; --ink:#EDE6D8; --ink-muted:#AFA290;
+    --border:#3A332A; --accent:#D98A93; --accent-ink:#2A0F14; --accent-2:#84B896; --accent-2-ink:#0E2016;
+    --gold:#D9B36B; --gold-bg:#3A2E15; --warn:#E2896A; --warn-bg:#3A211A; --shadow:rgba(0,0,0,0.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1A1712; --surface:#231F19; --surface-2:#2B261F; --ink:#EDE6D8; --ink-muted:#AFA290;
+  --border:#3A332A; --accent:#D98A93; --accent-ink:#2A0F14; --accent-2:#84B896; --accent-2-ink:#0E2016;
+  --gold:#D9B36B; --gold-bg:#3A2E15; --warn:#E2896A; --warn-bg:#3A211A; --shadow:rgba(0,0,0,0.45);
+}
+*{box-sizing:border-box;}
+html{width:100%;overflow-x:hidden;color-scheme:light dark;}
+body{width:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;overflow-x:hidden;}
+h1,h2,h3{text-wrap:balance;font-family:var(--font-display);margin:0;}
+a{color:inherit;}
+button,input,select,textarea{font-family:var(--font-body);color:var(--ink);}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+
+.app-shell{width:100%;max-width:980px;min-width:0;margin:0 auto;}
+.app-header{padding:22px 24px 0;}
+.brand{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;}
+.brand-left{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.brand h1{font-size:1.9rem;letter-spacing:-0.01em;overflow-wrap:break-word;}
+.place{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-muted);}
+.me-badge{font-size:0.82rem;color:var(--ink-muted);white-space:nowrap;padding-top:6px;}
+.me-badge strong{color:var(--ink);}
+
+.river{margin-top:14px;line-height:0;}
+.river svg{width:100%;height:10px;display:block;}
+.river path{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:0.55;}
+
+.highlight-strip{display:flex;width:100%;box-sizing:border-box;gap:22px;flex-wrap:wrap;margin:16px 0 18px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px var(--shadow);}
+.highlight-item{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 160px;}
+.highlight-label{font-family:var(--font-mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);}
+.highlight-value{font-family:var(--font-display);font-size:1.05rem;overflow-wrap:break-word;}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;}
+.tab-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;background:none;border:none;font-weight:700;font-size:0.85rem;color:var(--ink-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.icon{width:17px;height:17px;flex-shrink:0;}
+
+main{padding:8px 24px 20px;}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 10px;}
+.section-head h2{font-size:1.35rem;}
+.group-title{font-weight:700;font-size:0.85rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.03em;margin:26px 0 10px;display:flex;align-items:center;gap:8px;}
+.group-title .count{font-family:var(--font-mono);font-weight:400;text-transform:none;letter-spacing:0;}
+.empty{color:var(--ink-muted);font-style:italic;padding:14px 0;font-size:0.9rem;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:0.85rem;padding:8px 15px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.btn-ghost{background:none;border-color:transparent;color:var(--accent);padding:6px 8px;font-size:0.8rem;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.book-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px var(--shadow);cursor:pointer;text-align:left;font-family:var(--font-body);width:100%;}
+.book-card:hover{border-color:var(--accent);}
+.book-card:active{transform:scale(0.99);}
+.book-title{font-family:var(--font-display);font-size:1.05rem;line-height:1.25;}
+.book-author{font-size:0.8rem;color:var(--ink-muted);}
+.book-yg{font-family:var(--font-mono);font-size:0.7rem;color:var(--ink-muted);}
+.book-award{font-size:0.72rem;color:var(--gold);font-weight:600;}
+.book-detail-yg{font-family:var(--font-mono);font-size:0.78rem;color:var(--ink-muted);margin-bottom:8px;}
+.book-detail-award{font-size:0.85rem;color:var(--gold);font-weight:600;margin:0 0 10px;}
+.book-note{font-size:0.82rem;line-height:1.4;opacity:0.9;}
+.book-note.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.book-more{font-size:0.74rem;font-weight:700;color:var(--accent);margin-top:2px;}
+.book-meta{font-size:0.7rem;color:var(--ink-muted);font-family:var(--font-mono);}
+.book-detail-title{font-size:1.4rem;margin-bottom:4px;}
+.book-detail-author{font-size:0.9rem;color:var(--ink-muted);margin-bottom:12px;}
+.book-detail-note{font-size:0.95rem;line-height:1.6;margin:14px 0;}
+
+.pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;width:fit-content;}
+.pill-reading{background:var(--accent);color:var(--accent-ink);}
+.pill-read{background:var(--accent-2);color:var(--accent-2-ink);}
+.pill-proposed{background:var(--gold-bg);color:var(--gold);}
+.pill-podcast{background:var(--surface-2);color:var(--ink-muted);}
+.pill-event{background:var(--gold-bg);color:var(--gold);}
+.pill-discount{background:var(--warn-bg);color:var(--warn);}
+
+.vote-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;}
+.vote-question{font-family:var(--font-display);font-size:1.1rem;margin:0 0 10px;}
+.vote-option{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);}
+.vote-option:first-of-type{border-top:none;}
+.vote-choice-btn{font-size:0.78rem;padding:5px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;min-width:130px;text-align:left;}
+.vote-choice-btn.mine{border-color:var(--accent);color:var(--accent);font-weight:700;}
+.vote-bar-track{flex:1;height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden;}
+.vote-bar-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease;}
+.vote-count{font-family:var(--font-mono);font-size:0.78rem;width:22px;text-align:right;}
+.vote-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px;flex-wrap:wrap;}
+
+.meeting-row{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:12px;}
+.meeting-date{font-family:var(--font-mono);font-size:0.78rem;color:var(--ink-muted);min-width:118px;padding-top:2px;}
+.meeting-body{flex:1;display:flex;flex-direction:column;gap:4px;}
+.meeting-place{font-weight:700;font-size:0.92rem;}
+.rsvp-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.rsvp-btn{font-size:0.74rem;padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;}
+.rsvp-btn.active-going{background:var(--accent-2);border-color:var(--accent-2);color:var(--accent-2-ink);}
+.rsvp-btn.active-maybe{background:var(--gold-bg);border-color:var(--gold);color:var(--gold);}
+.rsvp-btn.active-no{background:var(--surface-2);color:var(--ink-muted);}
+.rsvp-avatars{font-size:0.72rem;color:var(--ink-muted);margin-top:4px;}
+
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+.member-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;}
+.member-name{font-family:var(--font-display);font-size:1.02rem;}
+.member-line{font-size:0.8rem;}
+.member-line .highlight-label{margin-right:4px;}
+
+.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.chip{font-size:0.78rem;padding:5px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--ink-muted);}
+.chip.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700;}
+.chip-select{font-size:0.78rem;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);}
+
+.extra-row{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:10px;}
+.extra-body{flex:1;display:flex;flex-direction:column;gap:4px;}
+.extra-title{font-family:var(--font-display);font-size:1rem;}
+.extra-title a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);}
+.extra-title a:hover{color:var(--accent);}
+.badge-expired{color:var(--ink-muted);text-decoration:line-through;}
+.badge-soon{color:var(--warn);font-weight:700;}
+
+.history-lede{font-family:var(--font-display);font-style:italic;font-size:1.3rem;line-height:1.5;max-width:640px;text-wrap:balance;margin:6px 0 30px;color:var(--ink);}
+.timeline{position:relative;margin:0 0 28px;padding-left:26px;border-left:2px solid var(--border);}
+.timeline-item{position:relative;padding-bottom:20px;}
+.timeline-item:last-child{padding-bottom:2px;}
+.timeline-item::before{content:'';position:absolute;left:-32px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);}
+.timeline-date{font-family:var(--font-mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:3px;}
+.timeline-text{font-size:0.93rem;line-height:1.55;max-width:600px;}
+.history-outro{padding-top:22px;border-top:1px solid var(--border);font-size:0.95rem;line-height:1.65;max-width:640px;}
+.history-outro strong{font-family:var(--font-display);font-style:italic;}
+
+.app-footer{max-width:980px;margin:36px auto 26px;padding:0 24px;text-align:center;font-size:0.74rem;color:var(--ink-muted);}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,16,12,0.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:60;}
+.modal{background:var(--surface);border-radius:16px;padding:22px 24px;max-width:440px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 12px 40px var(--shadow);}
+.modal h3{font-size:1.2rem;margin-bottom:4px;}
+.modal-sub{color:var(--ink-muted);font-size:0.82rem;margin:0 0 14px;}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.field label{font-size:0.72rem;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.03em;}
+input,select,textarea{font-size:1rem;padding:10px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg);}
+.field input,.field select,.field textarea{width:100%;}
+textarea{resize:vertical;min-height:56px;font-family:var(--font-body);}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+.checklist{display:flex;flex-direction:column;gap:5px;max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:9px 10px;}
+.check-row{display:flex;align-items:center;gap:8px;font-size:0.85rem;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 18px;border-radius:10px;font-size:0.85rem;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;z-index:80;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+@media (max-width:640px){
+  .app-header{padding:16px 16px 0;}
+  .tabs,main,.app-footer{padding-left:16px;padding-right:16px;}
+  .brand{gap:6px;}
+  .brand h1{font-size:1.5rem;}
+  .place{font-size:0.68rem;}
+  .me-badge{font-size:0.78rem;padding-top:0;}
+  .highlight-strip{flex-direction:column;flex-wrap:nowrap;width:100%;gap:12px;padding:14px 16px;margin:14px 0;}
+  .highlight-item{width:100%;min-width:0;flex:none;}
+  .highlight-value{font-size:0.98rem;}
+  .tab-btn{padding:12px 12px;font-size:0.8rem;}
+  .section-head{gap:10px;}
+  .section-head .btn{width:100%;justify-content:center;}
+  main{padding-top:4px;}
+  .book-grid,.member-grid{grid-template-columns:1fr;}
+  .book-card{padding:14px;}
+  .meeting-row{flex-direction:column;gap:6px;padding:14px;}
+  .meeting-date{min-width:0;}
+  .rsvp-row{gap:8px;}
+  .rsvp-btn{padding:8px 14px;font-size:0.78rem;}
+  .vote-card{padding:14px 16px;}
+  .vote-option{flex-wrap:wrap;row-gap:8px;padding:10px 0;}
+  .vote-choice-btn{flex:1 1 100%;min-width:0;padding:8px 12px;}
+  .vote-footer{flex-direction:column;align-items:flex-start;gap:8px;}
+  .vote-footer .btn{width:100%;justify-content:center;}
+  .filter-row{gap:6px;}
+  .chip{padding:7px 14px;}
+  .extra-row{padding:12px 14px;gap:12px;}
+  .timeline{padding-left:20px;}
+  .history-lede{font-size:1.1rem;}
+  .modal{padding:20px 18px;max-height:88vh;}
+  .modal-actions{flex-direction:column-reverse;}
+  .modal-actions .btn{width:100%;justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-left">
+        <h1>Книжный клуб под мостом</h1>
+        <span class="place">Richmond · London · с ноября 2025</span>
+      </div>
+      <div class="me-badge" id="me-badge"></div>
+    </div>
+    <div class="river" aria-hidden="true"><svg viewBox="0 0 400 12" preserveAspectRatio="none"><path d="M0 6 Q25 0 50 6 T100 6 T150 6 T200 6 T250 6 T300 6 T350 6 T400 6"/></svg></div>
+    <div class="highlight-strip" id="highlight-strip"></div>
+  </header>
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="history"></button>
+    <button class="tab-btn" data-tab="books"></button>
+    <button class="tab-btn" data-tab="votes"></button>
+    <button class="tab-btn" data-tab="meetings"></button>
+    <button class="tab-btn" data-tab="members"></button>
+    <button class="tab-btn" data-tab="extras"></button>
+  </nav>
+  <main>
+    <section class="tab-panel" id="panel-history"></section>
+    <section class="tab-panel" id="panel-books" hidden></section>
+    <section class="tab-panel" id="panel-votes" hidden></section>
+    <section class="tab-panel" id="panel-meetings" hidden></section>
+    <section class="tab-panel" id="panel-members" hidden></section>
+    <section class="tab-panel" id="panel-extras" hidden></section>
+  </main>
+</div>
+<p class="app-footer">Имена — без пароля, на честном слове. Каждый может проголосовать один раз и передумать в любой момент. Все видят изменения сразу.</p>
+<div id="modal-root"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD3rJuAXHtuj3gTr-jZOPwOkvVcNIdG0Sk",
+  authDomain: "bookclubpodmostom.firebaseapp.com",
+  projectId: "bookclubpodmostom",
+  storageBucket: "bookclubpodmostom.firebasestorage.app",
+  messagingSenderId: "12783628843",
+  appId: "1:12783628843:web:95e9f4df3b4c1215d6306e"
+};
+
+const ICONS = {
+  book:'<path d="M12 6C10.5 4.8 8 4 4.5 4V18C8 18 10.5 18.8 12 20C13.5 18.8 16 18 19.5 18V4C16 4 13.5 4.8 12 6Z"/><path d="M12 6V20"/>',
+  vote:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 6-6"/>',
+  calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8 3v4"/><path d="M16 3v4"/>',
+  people:'<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.3 2.7-5 6-5s6 1.7 6 5"/><circle cx="17.5" cy="9.5" r="2.3"/><path d="M15.7 14.2c2.5.4 4.3 1.9 4.3 4.8"/>',
+  compass:'<circle cx="12" cy="12" r="8"/><path d="M14.6 9.4l-2.1 5.2-3.1 1.5 2.1-5.2z"/>',
+  bridge:'<path d="M3 16h18"/><path d="M5 16c0-5 3.5-9 7-9s7 4 7 9"/><path d="M7 16v3"/><path d="M17 16v3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>'
+};
+function icon(name){
+  return '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>';
+}
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const TRANSLIT = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};
+function slugify(str){
+  const s = String(str||'').toLowerCase().split('').map(ch=>TRANSLIT[ch]!==undefined?TRANSLIT[ch]:ch).join('');
+  const out = s.replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+  return out || ('x'+Date.now());
+}
+const RU_MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function formatRuDate(iso){
+  if(!iso) return '';
+  const parts = iso.split('-').map(Number);
+  return parts[2]+' '+RU_MONTHS[parts[1]-1]+' '+parts[0];
+}
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+function openModal(html){
+  document.getElementById('modal-root').innerHTML =
+    '<div class="modal-backdrop" id="modal-backdrop"><div class="modal" role="dialog" aria-modal="true">'+html+'</div></div>';
+  document.getElementById('modal-backdrop').addEventListener('click', e=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+const NAME_KEY='bc_member_name_v1';
+function getMyName(){ return localStorage.getItem(NAME_KEY) || ''; }
+function setMyNameStored(n){ localStorage.setItem(NAME_KEY, n); }
+
+function renderMe(){
+  const n = getMyName();
+  const el = document.getElementById('me-badge');
+  if(n){
+    el.innerHTML = 'Ты: <strong>'+esc(n)+'</strong> &nbsp;<button class="btn-ghost" id="change-name-btn">сменить</button>';
+    document.getElementById('change-name-btn').addEventListener('click', ()=>{
+      localStorage.removeItem(NAME_KEY);
+      requireName(()=>{});
+    });
+  } else {
+    el.innerHTML = '<button class="btn-ghost" id="set-name-btn">Представиться</button>';
+    document.getElementById('set-name-btn').addEventListener('click', ()=> requireName(()=>{}));
+  }
+}
+
+function requireName(cb){
+  const existing = getMyName();
+  if(existing){ cb(existing); return; }
+  openModal(
+    '<h3>Как тебя записать?</h3>'+
+    '<p class="modal-sub">Без пароля — просто имя, чтобы клуб видел, кто голосовал и кто идёт на встречу.</p>'+
+    '<div class="field"><label>Имя</label><input id="name-input" type="text" maxlength="40" placeholder="Например, Юля"/></div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="name-save-btn">Сохранить</button></div>'
+  );
+  const input = document.getElementById('name-input');
+  input.focus();
+  const save = async ()=>{
+    const v = input.value.trim();
+    if(!v){ input.focus(); return; }
+    setMyNameStored(v);
+    await upsertMember(v);
+    closeModal();
+    renderMe();
+    cb(v);
+  };
+  document.getElementById('name-save-btn').addEventListener('click', save);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') save(); });
+}
+
+async function upsertMember(name){
+  if(!db) return;
+  const id = slugify(name);
+  const ref = db.doc('members/'+id);
+  const snap = await ref.get();
+  if(!snap.exists){
+    await ref.set({displayName:name, reading:'', interests:'', joinedAt:new Date().toISOString()});
+  }
+}
+
+// ---- state ----
+let db = null;
+let activeTab = 'history';
+let booksCache = [], votesCache = [], meetingsCache = [], membersCache = [], extrasCache = [];
+let ballotsCache = {}, ballotUnsubs = {};
+let rsvpCache = {}, rsvpUnsubs = {};
+let extraFilter = 'all', extraSeason = 'all';
+
+const TAB_META = [
+  {key:'history', label:'Предыстория', icon:'bridge'},
+  {key:'books', label:'Библиотека', icon:'book'},
+  {key:'votes', label:'Голосование', icon:'vote'},
+  {key:'meetings', label:'Встречи', icon:'calendar'},
+  {key:'members', label:'Участники', icon:'people'},
+  {key:'extras', label:'Вне книг', icon:'compass'}
+];
+
+function wireTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    const meta = TAB_META.find(t=>t.key===btn.dataset.tab);
+    btn.innerHTML = icon(meta.icon)+'<span>'+meta.label+'</span>';
+    btn.addEventListener('click', ()=>{
+      activeTab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
+      document.querySelectorAll('.tab-panel').forEach(p=>{ p.hidden = p.id !== 'panel-'+activeTab; });
+      renderActiveTab();
+    });
+  });
+}
+function renderActiveTab(){
+  if(activeTab==='history') renderHistory();
+  else if(activeTab==='books') renderBooks();
+  else if(activeTab==='votes') renderVotes();
+  else if(activeTab==='meetings') renderMeetings();
+  else if(activeTab==='members') renderMembers();
+  else if(activeTab==='extras') renderExtras();
+}
+
+function renderHighlight(){
+  const el = document.getElementById('highlight-strip');
+  const reading = booksCache.filter(b=>b.status==='reading');
+  const upcoming = meetingsCache.filter(m=>m.status!=='past').sort((a,b)=>(a.sortKey||'').localeCompare(b.sortKey||''))[0];
+  el.innerHTML =
+    '<div class="highlight-item"><span class="highlight-label">Читаем сейчас</span><span class="highlight-value">'+
+      (reading.length? esc(reading.map(b=>b.title).join(' + ')) : '— пока не выбрано') +'</span></div>'+
+    '<div class="highlight-item"><span class="highlight-label">Следующая встреча</span><span class="highlight-value">'+
+      (upcoming? esc(upcoming.when)+(upcoming.place?' · '+esc(upcoming.place):'') : '— не назначена') +'</span></div>'+
+    '<div class="highlight-item"><span class="highlight-label">В библиотеке</span><span class="highlight-value">'+booksCache.length+' книг</span></div>';
+}
+
+// ---- history ----
+const TIMELINE = [
+  {date:'1 ноября 2025', text:'Вся компания встречается у моста и решает: у нас будет свой мини-книжный клуб. Тут же, на месте, обсуждают, какие книги хочется прочитать. Дима создаёт чат, Женя зовёт туда Юлю — а она сразу называет первую книгу: «Центр тяжести» Алексея Поляринова.'},
+  {date:'6 декабря 2025', text:'Первая живая встреча — The Mitre в Ричмонде. Обсуждают «Центр тяжести» — с этой встречи клуб стал настоящим.'},
+  {date:'21 декабря 2025', text:'Предновогодняя встреча в Rising Sun: глинтвейн, пицца, партия в UNO и шутки про Достоевского. После неё в чат один за другим посыпались кандидаты в книги — Делёз, Макдональд, Пелевин, Зубофф.'},
+  {date:'1 февраля 2026', text:'Встреча у The Mute Swan после прогулки по Hampton Court Palace — разговор незаметно ушёл в сторону персидской кухни.'},
+  {date:'март – июль 2026', text:'Клуб замолкает почти на полгода: жизнь, работа, жара, купание в Темзе. Список книг на прочтение никуда не девается — просто ждёт.'},
+  {date:'16 августа 2026', text:'Юля берёт инициативу и собирает клуб заново. Выбирают сразу две книги на сентябрь: «Мова» Мартиновича и «Manna» Маршалла Брейна.'},
+  {date:'1–2 сентября 2026', text:'По одной пригласительной ссылке в клуб приходит полтора десятка новых людей — включая Веронику с её списком из 40+ прочитанных книг за два года. Клуб внезапно становится больше, чем когда-либо.'}
+];
+function renderHistory(){
+  const panel = document.getElementById('panel-history');
+  panel.innerHTML =
+    '<div class="section-head"><h2>Предыстория клуба</h2></div>'+
+    '<p class="history-lede">Клуб, который начался с разговора у моста и книги о девяностых — а вырос в место, где спорят о Делёзе, ищут скидки на Hampton Court и просто пьют кофе всё там же, под мостом.</p>'+
+    '<div class="timeline">'+
+      TIMELINE.map(t=>'<div class="timeline-item"><div class="timeline-date">'+esc(t.date)+'</div><div class="timeline-text">'+esc(t.text)+'</div></div>').join('')+
+    '</div>'+
+    '<p class="history-outro">Название «под мостом» — не метафора: самая первая встреча клуба прошла именно там, а дальше продолжилось в пабах по соседству с Richmond Bridge; с осени 2026 клуб обосновался в Tide Tables Café — кафе, которое стоит буквально в арке моста. Ядро всё то же — <strong>Julia и Eugene, Hexen и Dima, Dina и Yesbol</strong> — но теперь рядом с ними ещё почти два десятка человек, готовых читать, спорить и находить повод собраться здесь снова.</p>';
+}
+
+// ---- books ----
+function renderBooks(){
+  const panel = document.getElementById('panel-books');
+  const groups = [
+    {key:'reading', label:'Читаем сейчас', pillClass:'pill-reading'},
+    {key:'read', label:'Прочитано', pillClass:'pill-read'},
+    {key:'proposed', label:'Предложено', pillClass:'pill-proposed'}
+  ];
+  let html = '<div class="section-head"><h2>Библиотека клуба</h2><button class="btn btn-primary" id="add-book-btn">'+icon('plus')+'<span>Предложить книгу</span></button></div>';
+  groups.forEach(g=>{
+    const items = booksCache.filter(b=>b.status===g.key).sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
+    html += '<div class="group-title">'+g.label+' <span class="count">'+items.length+'</span></div>';
+    if(!items.length){ html += '<div class="empty">Пока пусто.</div>'; }
+    else {
+      html += '<div class="book-grid">'+items.map(b=>
+        '<div class="book-card" data-book-id="'+b.id+'" tabindex="0" role="button" aria-label="'+esc(b.title)+' — подробнее">'+
+          '<span class="pill '+g.pillClass+'">'+g.label+'</span>'+
+          '<div class="book-title">'+esc(b.title)+'</div>'+
+          (b.author? '<div class="book-author">'+esc(b.author)+'</div>' : '')+
+          ((b.year||b.genre)? '<div class="book-yg">'+[b.year,b.genre].filter(Boolean).map(esc).join(' · ')+'</div>' : '')+
+          (b.award? '<div class="book-award">'+esc(b.award)+'</div>' : '')+
+          (b.note? '<div class="book-note clamp">'+esc(b.note)+'</div>' : '')+
+          (b.note? '<div class="book-more">Подробнее →</div>' : '')+
+          '<div class="book-meta">предложил(а) '+esc(b.proposedBy||'—')+'</div>'+
+        '</div>'
+      ).join('')+'</div>';
+    }
+  });
+  panel.innerHTML = html;
+  document.getElementById('add-book-btn').addEventListener('click', ()=> requireName(openAddBookModal));
+  panel.querySelectorAll('[data-book-id]').forEach(card=>{
+    const open = ()=> openBookDetailModal(card.dataset.bookId);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); } });
+  });
+}
+function openBookDetailModal(id){
+  const b = booksCache.find(x=>x.id===id);
+  if(!b) return;
+  const statusLabel = b.status==='reading'?'Читаем сейчас':b.status==='read'?'Прочитано':'Предложено';
+  const pillClass = b.status==='reading'?'pill-reading':b.status==='read'?'pill-read':'pill-proposed';
+  openModal(
+    '<span class="pill '+pillClass+'">'+statusLabel+'</span>'+
+    '<h3 class="book-detail-title">'+esc(b.title)+'</h3>'+
+    (b.author? '<div class="book-detail-author">'+esc(b.author)+'</div>' : '')+
+    ((b.year||b.genre)? '<div class="book-detail-yg">'+[b.year,b.genre].filter(Boolean).map(esc).join(' · ')+'</div>' : '')+
+    (b.award? '<div class="book-detail-award">'+esc(b.award)+'</div>' : '')+
+    (b.note? '<div class="book-detail-note">'+esc(b.note)+'</div>' : '<p class="modal-sub">Описания пока нет.</p>')+
+    '<div class="book-meta">предложил(а) '+esc(b.proposedBy||'—')+'</div>'+
+    '<div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">Закрыть</button></div>'
+  );
+}
+function openAddBookModal(name){
+  openModal(
+    '<h3>Предложить книгу</h3>'+
+    '<div class="field"><label>Название</label><input id="b-title" type="text" maxlength="120"/></div>'+
+    '<div class="field"><label>Автор</label><input id="b-author" type="text" maxlength="80"/></div>'+
+    '<div class="field"><label>Почему стоит прочитать (необязательно)</label><textarea id="b-note" maxlength="300"></textarea></div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="b-save">Добавить в пул</button></div>'
+  );
+  document.getElementById('b-save').addEventListener('click', async ()=>{
+    const title = document.getElementById('b-title').value.trim();
+    const author = document.getElementById('b-author').value.trim();
+    const note = document.getElementById('b-note').value.trim();
+    if(!title){ toast('Нужно название книги'); return; }
+    const id = slugify(title)+'-'+Math.random().toString(36).slice(2,6);
+    await db.doc('books/'+id).set({title, author, note, status:'proposed', proposedBy:name, addedAt:new Date().toISOString()});
+    closeModal();
+    toast('Книга добавлена в предложенные');
+  });
+}
+
+// ---- votes ----
+function ensureBallotSub(voteId){
+  if(ballotUnsubs[voteId]) return;
+  ballotUnsubs[voteId] = db.collection('votes/'+voteId+'/ballots').onSnapshot(snap=>{
+    ballotsCache[voteId] = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    if(activeTab==='votes') renderVotes();
+  });
+}
+function renderVotes(){
+  const panel = document.getElementById('panel-votes');
+  const open = votesCache.filter(v=>v.status==='open');
+  const closed = votesCache.filter(v=>v.status==='closed');
+  let html = '<div class="section-head"><h2>Голосование</h2><button class="btn btn-primary" id="start-vote-btn">'+icon('plus')+'<span>Начать голосование</span></button></div>';
+  html += '<div class="group-title">Активные <span class="count">'+open.length+'</span></div>';
+  html += open.length? open.map(v=>renderVoteCard(v,true)).join('') : '<div class="empty">Сейчас ничего не голосуется.</div>';
+  if(closed.length){
+    html += '<div class="group-title">Прошедшие <span class="count">'+closed.length+'</span></div>';
+    html += closed.map(v=>renderVoteCard(v,false)).join('');
+  }
+  panel.innerHTML = html;
+  document.getElementById('start-vote-btn').addEventListener('click', ()=> requireName(openStartVoteModal));
+  panel.querySelectorAll('[data-vote-choice]').forEach(btn=>{
+    btn.addEventListener('click', ()=> requireName(name=>castBallot(btn.dataset.voteId, btn.dataset.optionId, name)));
+  });
+  panel.querySelectorAll('[data-close-vote]').forEach(btn=>{
+    btn.addEventListener('click', ()=> closeVote(btn.dataset.voteId));
+  });
+}
+function renderVoteCard(v, isOpen){
+  const ballots = ballotsCache[v.id] || [];
+  const total = ballots.length;
+  const myId = slugify(getMyName());
+  const myBallot = ballots.find(b=>b.id===myId);
+  const opts = v.options || [];
+  const rows = opts.map(o=>{
+    const count = ballots.filter(b=>b.optionId===o.id).length;
+    const pct = total? Math.round(count/total*100) : 0;
+    const mine = myBallot && myBallot.optionId===o.id;
+    return '<div class="vote-option">'+
+      '<button class="vote-choice-btn'+(mine?' mine':'')+'"'+(isOpen? ' data-vote-choice data-vote-id="'+v.id+'" data-option-id="'+esc(o.id)+'"' : ' disabled')+'>'+(mine?'✓ ':'')+esc(o.label)+'</button>'+
+      '<div class="vote-bar-track"><div class="vote-bar-fill" style="width:'+pct+'%"></div></div>'+
+      '<span class="vote-count">'+count+'</span>'+
+    '</div>';
+  }).join('');
+  return '<div class="vote-card">'+
+    '<p class="vote-question">'+esc(v.question)+'</p>'+
+    rows+
+    '<div class="vote-footer"><span class="book-meta">начал(а) '+esc(v.createdBy||'—')+' · голосов: '+total+'</span>'+
+    (isOpen? '<button class="btn btn-ghost" data-close-vote data-vote-id="'+v.id+'">Завершить голосование</button>' : '')+
+    '</div></div>';
+}
+async function castBallot(voteId, optionId, name){
+  const id = slugify(name);
+  await db.doc('votes/'+voteId+'/ballots/'+id).set({optionId, name, votedAt:new Date().toISOString()});
+  toast('Голос учтён');
+}
+async function closeVote(voteId){
+  const vote = votesCache.find(v=>v.id===voteId);
+  if(!vote) return;
+  const ballots = ballotsCache[voteId] || [];
+  if(!ballots.length){ toast('Пока никто не проголосовал'); return; }
+  const tally = {};
+  ballots.forEach(b=>{ tally[b.optionId] = (tally[b.optionId]||0)+1; });
+  let winnerId=null, max=-1;
+  Object.entries(tally).forEach(([k,c])=>{ if(c>max){ max=c; winnerId=k; } });
+  const winnerOpt = (vote.options||[]).find(o=>o.id===winnerId);
+  await db.doc('votes/'+voteId).update({status:'closed', winnerId, closedAt:new Date().toISOString()});
+  if(vote.kind==='book' && winnerOpt){
+    await db.doc('books/'+winnerOpt.id).update({status:'reading'}).catch(()=>{});
+  }
+  toast('Голосование завершено'+(winnerOpt? ': выбрали «'+winnerOpt.label+'»' : ''));
+}
+function openStartVoteModal(name){
+  const candidates = booksCache.filter(b=>b.status==='proposed');
+  openModal(
+    '<h3>Начать голосование</h3>'+
+    '<div class="field"><label>Тип</label><select id="v-kind"><option value="book">За книгу</option><option value="date">За дату встречи</option></select></div>'+
+    '<div id="v-book-fields">'+
+      '<div class="field"><label>Вопрос</label><input id="v-question-book" type="text" value="Что читаем следующим?"/></div>'+
+      '<div class="field"><label>Кандидаты (выбери минимум 2 из предложенных)</label><div class="checklist">'+
+        (candidates.length? candidates.map(b=>'<label class="check-row"><input type="checkbox" value="'+b.id+'"/> '+esc(b.title)+(b.author?' — '+esc(b.author):'')+'</label>').join('') : '<div class="empty">Сначала добавь книги в «Предложено».</div>')+
+      '</div></div>'+
+    '</div>'+
+    '<div id="v-date-fields" hidden>'+
+      '<div class="field"><label>Вопрос</label><input id="v-question-date" type="text" value="Когда встречаемся?"/></div>'+
+      '<div class="field"><label>Варианты дат/времени — по одному в строке</label><textarea id="v-date-options" placeholder="Сб 12 сентября, 16:00&#10;Вс 13 сентября, 12:00"></textarea></div>'+
+    '</div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="v-save">Запустить</button></div>'
+  );
+  const kindSel = document.getElementById('v-kind');
+  kindSel.addEventListener('change', ()=>{
+    document.getElementById('v-book-fields').hidden = kindSel.value!=='book';
+    document.getElementById('v-date-fields').hidden = kindSel.value!=='date';
+  });
+  document.getElementById('v-save').addEventListener('click', async ()=>{
+    if(kindSel.value==='book'){
+      const checked = Array.from(document.querySelectorAll('#v-book-fields input[type=checkbox]:checked'));
+      if(checked.length<2){ toast('Выбери минимум 2 книги'); return; }
+      const options = checked.map(c=>{
+        const b = candidates.find(x=>x.id===c.value);
+        return {id:b.id, label:b.title+(b.author?' — '+b.author:'')};
+      });
+      const question = document.getElementById('v-question-book').value.trim() || 'Что читаем следующим?';
+      await db.collection('votes').add({kind:'book', question, options, status:'open', createdBy:name, createdAt:new Date().toISOString()});
+    } else {
+      const lines = document.getElementById('v-date-options').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      if(lines.length<2){ toast('Впиши минимум 2 варианта'); return; }
+      const options = lines.map((l,i)=>({id:'opt'+i, label:l}));
+      const question = document.getElementById('v-question-date').value.trim() || 'Когда встречаемся?';
+      await db.collection('votes').add({kind:'date', question, options, status:'open', createdBy:name, createdAt:new Date().toISOString()});
+    }
+    closeModal();
+    toast('Голосование запущено');
+  });
+}
+
+// ---- meetings ----
+function ensureRsvpSub(meetingId){
+  if(rsvpUnsubs[meetingId]) return;
+  rsvpUnsubs[meetingId] = db.collection('meetings/'+meetingId+'/rsvps').onSnapshot(snap=>{
+    rsvpCache[meetingId] = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    if(activeTab==='meetings') renderMeetings();
+  });
+}
+function renderMeetings(){
+  const panel = document.getElementById('panel-meetings');
+  const upcoming = meetingsCache.filter(m=>m.status!=='past').sort((a,b)=>(a.sortKey||'').localeCompare(b.sortKey||''));
+  const past = meetingsCache.filter(m=>m.status==='past').sort((a,b)=>(b.sortKey||'').localeCompare(a.sortKey||''));
+  let html = '<div class="section-head"><h2>Встречи</h2><button class="btn btn-primary" id="add-meeting-btn">'+icon('plus')+'<span>Предложить встречу</span></button></div>';
+  html += '<div class="group-title">Предстоящие <span class="count">'+upcoming.length+'</span></div>';
+  html += upcoming.length? upcoming.map(m=>renderMeetingRow(m,true)).join('') : '<div class="empty">Пока не назначено.</div>';
+  html += '<div class="group-title">Прошедшие <span class="count">'+past.length+'</span></div>';
+  html += past.length? past.map(m=>renderMeetingRow(m,false)).join('') : '<div class="empty">—</div>';
+  panel.innerHTML = html;
+  document.getElementById('add-meeting-btn').addEventListener('click', ()=> requireName(openAddMeetingModal));
+  panel.querySelectorAll('[data-rsvp]').forEach(btn=>{
+    btn.addEventListener('click', ()=> requireName(name=>setRsvp(btn.dataset.meetingId, btn.dataset.rsvp, name)));
+  });
+}
+function renderMeetingRow(m, upcoming){
+  const rsvps = rsvpCache[m.id] || [];
+  const mine = rsvps.find(r=>r.id===slugify(getMyName()));
+  const going = rsvps.filter(r=>r.status==='going');
+  const maybe = rsvps.filter(r=>r.status==='maybe');
+  const bookTitles = (m.bookIds||[]).map(id=>{ const b=booksCache.find(x=>x.id===id); return b? b.title : null; }).filter(Boolean);
+  return '<div class="meeting-row">'+
+    '<div class="meeting-date">'+esc(m.when||'')+(m.time && m.time!=='—' ? ', '+esc(m.time) : '')+'</div>'+
+    '<div class="meeting-body">'+
+      '<div class="meeting-place">'+esc(m.place||'')+'</div>'+
+      (bookTitles.length? '<div class="book-meta">книги: '+esc(bookTitles.join(', '))+'</div>' : '')+
+      (m.notes? '<div class="book-note">'+esc(m.notes)+'</div>' : '')+
+      (upcoming?
+        '<div class="rsvp-row">'+
+          '<button class="rsvp-btn'+(mine&&mine.status==='going'?' active-going':'')+'" data-rsvp="going" data-meeting-id="'+m.id+'">Иду</button>'+
+          '<button class="rsvp-btn'+(mine&&mine.status==='maybe'?' active-maybe':'')+'" data-rsvp="maybe" data-meeting-id="'+m.id+'">Может быть</button>'+
+          '<button class="rsvp-btn'+(mine&&mine.status==='no'?' active-no':'')+'" data-rsvp="no" data-meeting-id="'+m.id+'">Не иду</button>'+
+        '</div>'+
+        '<div class="rsvp-avatars">идут: '+(going.length? esc(going.map(g=>g.name).join(', ')):'пока никто')+(maybe.length? ' · возможно: '+esc(maybe.map(g=>g.name).join(', ')):'')+'</div>'
+        : '<div class="rsvp-avatars">'+(going.length? 'были: '+esc(going.map(g=>g.name).join(', ')) : '')+'</div>')+
+    '</div></div>';
+}
+async function setRsvp(meetingId, status, name){
+  const id = slugify(name);
+  await db.doc('meetings/'+meetingId+'/rsvps/'+id).set({status, name, at:new Date().toISOString()});
+  toast(status==='going'? 'Отметили — ты идёшь' : status==='maybe'? 'Отметили как «может быть»' : 'Отметили — не идёшь');
+}
+function openAddMeetingModal(name){
+  const readingBooks = booksCache.filter(b=>b.status==='reading');
+  openModal(
+    '<h3>Предложить встречу</h3>'+
+    '<div class="field"><label>Дата</label><input id="m-date" type="date"/></div>'+
+    '<div class="field"><label>Время</label><input id="m-time" type="text" placeholder="16:00"/></div>'+
+    '<div class="field"><label>Место</label><input id="m-place" type="text" placeholder="Tide Tables Café, Richmond"/></div>'+
+    '<div class="field"><label>Ссылка на карту (необязательно)</label><input id="m-map" type="text" placeholder="https://maps.app.goo.gl/..."/></div>'+
+    '<div class="field"><label>Какую книгу обсуждаем</label><select id="m-book"><option value="">— не выбрано —</option>'+
+      readingBooks.map(b=>'<option value="'+b.id+'">'+esc(b.title)+'</option>').join('')+
+    '</select></div>'+
+    '<div class="field"><label>Заметка (необязательно)</label><textarea id="m-notes"></textarea></div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="m-save">Создать</button></div>'
+  );
+  document.getElementById('m-save').addEventListener('click', async ()=>{
+    const dateVal = document.getElementById('m-date').value;
+    const place = document.getElementById('m-place').value.trim();
+    if(!dateVal || !place){ toast('Укажи хотя бы дату и место'); return; }
+    const time = document.getElementById('m-time').value.trim();
+    const map = document.getElementById('m-map').value.trim();
+    const bookId = document.getElementById('m-book').value;
+    const notes = document.getElementById('m-notes').value.trim();
+    const id = dateVal+'-'+Math.random().toString(36).slice(2,5);
+    await db.doc('meetings/'+id).set({
+      when: formatRuDate(dateVal), sortKey: dateVal, time: time||'—', place, mapUrl: map,
+      bookIds: bookId?[bookId]:[], status:'upcoming', notes, createdBy:name, createdAt:new Date().toISOString()
+    });
+    closeModal();
+    toast('Встреча добавлена');
+  });
+}
+
+// ---- members ----
+function renderMembers(){
+  const panel = document.getElementById('panel-members');
+  let html = '<div class="section-head"><h2>Участники</h2><span class="book-meta">'+membersCache.length+' человек</span></div>';
+  if(!membersCache.length){
+    html += '<div class="empty">Пока никто не представился.</div>';
+  } else {
+    html += '<div class="member-grid">'+membersCache.map(p=>{
+      const isMe = slugify(getMyName())===p.id;
+      return '<div class="member-card">'+
+        '<div class="member-name">'+esc(p.displayName)+'</div>'+
+        (p.reading? '<div class="member-line"><span class="highlight-label">читает</span> '+esc(p.reading)+'</div>' : '')+
+        (p.interests? '<div class="member-line"><span class="highlight-label">интересы</span> '+esc(p.interests)+'</div>' : '')+
+        (isMe? '<button class="btn-ghost" data-edit-member="'+p.id+'">редактировать</button>' : '')+
+      '</div>';
+    }).join('')+'</div>';
+  }
+  panel.innerHTML = html;
+  panel.querySelectorAll('[data-edit-member]').forEach(btn=> btn.addEventListener('click', ()=> openEditMemberModal(btn.dataset.editMember)));
+}
+function openEditMemberModal(id){
+  const p = membersCache.find(x=>x.id===id);
+  if(!p) return;
+  openModal(
+    '<h3>Обновить профиль</h3>'+
+    '<div class="field"><label>Сейчас читаю</label><input id="p-reading" type="text" value="'+esc(p.reading||'')+'"/></div>'+
+    '<div class="field"><label>Интересы</label><input id="p-interests" type="text" value="'+esc(p.interests||'')+'"/></div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="p-save">Сохранить</button></div>'
+  );
+  document.getElementById('p-save').addEventListener('click', async ()=>{
+    await db.doc('members/'+id).update({
+      reading: document.getElementById('p-reading').value.trim(),
+      interests: document.getElementById('p-interests').value.trim()
+    });
+    closeModal();
+    toast('Профиль обновлён');
+  });
+}
+
+// ---- extras (podcasts / events / discounts) ----
+function renderExtras(){
+  const panel = document.getElementById('panel-extras');
+  const typeLabels = {podcast:'Подкаст', event:'Событие', discount:'Скидка'};
+  const seasonLabels = {winter:'Зима', spring:'Весна', summer:'Лето', autumn:'Осень'};
+  let items = extrasCache.slice();
+  if(extraFilter!=='all') items = items.filter(e=>e.type===extraFilter);
+  if(extraSeason!=='all') items = items.filter(e=>e.season===extraSeason);
+  const today = new Date().toISOString().slice(0,10);
+  let html = '<div class="section-head"><h2>Вне книг</h2><button class="btn btn-primary" id="add-extra-btn">'+icon('plus')+'<span>Добавить находку</span></button></div>';
+  html += '<div class="filter-row">'+
+    ['all','podcast','event','discount'].map(t=>'<button class="chip'+(extraFilter===t?' active':'')+'" data-filter-type="'+t+'">'+(t==='all'?'Всё':typeLabels[t])+'</button>').join('')+
+    '<select id="season-filter" class="chip-select"><option value="all">Любой сезон</option><option value="winter">Зима</option><option value="spring">Весна</option><option value="summer">Лето</option><option value="autumn">Осень</option></select>'+
+  '</div>';
+  if(!items.length){
+    html += '<div class="empty">Ничего не нашлось по фильтру.</div>';
+  } else {
+    html += items.map(e=>{
+      const expired = e.expiresAt && e.expiresAt < today;
+      return '<div class="extra-row">'+
+        '<span class="pill pill-'+e.type+'">'+(typeLabels[e.type]||e.type)+'</span>'+
+        '<div class="extra-body">'+
+          '<div class="extra-title">'+(e.url? '<a href="'+esc(e.url)+'" target="_blank" rel="noopener">'+esc(e.title)+'</a>' : esc(e.title))+'</div>'+
+          (e.note? '<div class="book-note">'+esc(e.note)+'</div>' : '')+
+          '<div class="book-meta">'+
+            (e.season? seasonLabels[e.season]+' · ' : '')+'добавил(а) '+esc(e.addedBy||'—')+
+            (e.expiresAt? ' · <span class="'+(expired?'badge-expired':'badge-soon')+'">'+(expired?'истекло':'до')+' '+formatRuDate(e.expiresAt)+'</span>' : '')+
+          '</div>'+
+        '</div></div>';
+    }).join('');
+  }
+  panel.innerHTML = html;
+  document.getElementById('add-extra-btn').addEventListener('click', ()=> requireName(openAddExtraModal));
+  panel.querySelectorAll('[data-filter-type]').forEach(btn=> btn.addEventListener('click', ()=>{ extraFilter = btn.dataset.filterType; renderExtras(); }));
+  const seasonSel = document.getElementById('season-filter');
+  seasonSel.value = extraSeason;
+  seasonSel.addEventListener('change', ()=>{ extraSeason = seasonSel.value; renderExtras(); });
+}
+function openAddExtraModal(name){
+  openModal(
+    '<h3>Добавить находку</h3>'+
+    '<div class="field"><label>Тип</label><select id="e-type"><option value="podcast">Подкаст</option><option value="event">Событие</option><option value="discount">Скидка</option></select></div>'+
+    '<div class="field"><label>Название</label><input id="e-title" type="text" maxlength="140"/></div>'+
+    '<div class="field"><label>Ссылка (необязательно)</label><input id="e-url" type="text" placeholder="https://"/></div>'+
+    '<div class="field"><label>Сезон</label><select id="e-season"><option value="">Любой</option><option value="winter">Зима</option><option value="spring">Весна</option><option value="summer">Лето</option><option value="autumn">Осень</option></select></div>'+
+    '<div class="field"><label>Действует до (для скидок, необязательно)</label><input id="e-expires" type="date"/></div>'+
+    '<div class="field"><label>Заметка</label><textarea id="e-note" maxlength="240"></textarea></div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="e-save">Добавить</button></div>'
+  );
+  document.getElementById('e-save').addEventListener('click', async ()=>{
+    const title = document.getElementById('e-title').value.trim();
+    if(!title){ toast('Нужно название'); return; }
+    const type = document.getElementById('e-type').value;
+    const url = document.getElementById('e-url').value.trim();
+    const season = document.getElementById('e-season').value;
+    const expiresAt = document.getElementById('e-expires').value;
+    const note = document.getElementById('e-note').value.trim();
+    const id = 'e-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    await db.doc('extras/'+id).set({type, title, url, season, expiresAt, note, addedBy:name, addedAt:new Date().toISOString()});
+    closeModal();
+    toast('Добавлено');
+  });
+}
+
+// ---- seed & init ----
+async function seedIfNeeded(){
+  const seedRef = db.doc('meta/seed');
+  const snap = await seedRef.get();
+  if(snap.exists) return;
+
+  const books = [
+    {id:'mova', title:'Мова', author:'Виктор Мартинович', status:'reading', proposedBy:'Julia', note:'Минск 4741 года по китайскому календарю — эпоха шопинг-религии и союза Китая с Россией. Сентиментальный контрабандист Сергей ввозит редкий и опасный товар — белорусский язык — и оказывается под контролем минского подполья во главе с китайской мафией. Критики называют роман «сентиментально-ехидной социальной фантастикой» и белорусской антиутопией — историей о том, за что стоит бороться. Отзывы неоднозначны: одни видят литературный шедевр о языке и памяти, другие — подражание Пелевину. FantLab: 7.83/10 (42 оценки).', year:'2014', genre:'антиутопия / социальная фантастика', award:'', addedAt:'2026-08-16'},
+    {id:'manna', title:'Manna', author:'Marshall Brain', status:'reading', proposedBy:'Hexen', note:'Короткая (всего 79 страниц), но насыщенная антиутопия о роботизации труда: когда половину рабочих мест забирают алгоритмы, общество раскалывается на два сценария. Первый — мрачный тотальный контроль через автоматизированный менеджмент. Второй — на удивление обнадёживающее общество изобилия. Автор — создатель HowStuffWorks, объясняет будущее через понятные механики. Читаем вместе с «Мовой». Goodreads: 3.93/5 (1783 оценки).', year:'2003', genre:'научная фантастика', award:'', addedAt:'2026-08-16'},
+    {id:'centr-tyazhesti', title:'Центр тяжести', author:'Алексей Поляринов', status:'read', proposedBy:'Julia', note:'Дебютный роман Поляринова — переводчика Дэвида Фостера Уоллеса и знатока американского постмодернизма. Три героя — молодые журналист, хакер и художница — противостоят наступлению «дивного нового мира» на фоне взрывного развития технологий и современного искусства в Москве. Первая книга клуба — с неё всё началось 1 ноября 2025. Вошёл в лонг-лист премии «Национальный бестселлер» и получил приз читательских симпатий премии «НОС». Livelib: 4.3/5 (4479 оценок).', year:'2018', genre:'современная проза', award:'«Национальный бестселлер» (лонг-лист), приз читательских симпатий «НОС»', addedAt:'2025-11-01'},
+    {id:'my-life-in-france', title:'My Life in France', author:'Julia Child', status:'proposed', proposedBy:'Julia', note:'Мемуары Джулии Чайлд о переезде в послевоенный Париж в конце 1940-х, влюблённости во французскую кухню и долгом пути к созданию легендарной «Mastering the Art of French Cooking». Тепло, с юмором и гастрономическими подробностями книга рассказывает, как поздний старт — Джулия начала учиться готовить профессионально уже за тридцать — обернулся призванием на всю жизнь. Легла в основу фильма «Джули и Джулия». Предлагалась как рождественское чтение, но клуб её не читал. Goodreads: 4.16/5 (94 000+ оценок).', year:'2006', genre:'мемуары / кулинария', award:'', addedAt:'2025-12-08'},
+    {id:'christmas-carol', title:'Рождественская песнь в прозе', author:'Чарльз Диккенс', status:'read', proposedBy:'Julia', note:'Скупой ростовщик Эбенезер Скрудж встречает в рождественскую ночь трёх духов — Прошлого, Настоящего и Будущего Рождества — и заново проживает свою жизнь, чтобы понять цену собственной чёрствости. Спустя 180 лет после публикации история остаётся такой же трогательной: простая по форме и глубокая по смыслу притча о втором шансе и щедрости. Перечитали к Рождеству через призму юнгианских теней — новый взгляд на знакомый сюжет. Livelib: 4.6/5.', year:'1843', genre:'святочный рассказ, классика', award:'', addedAt:'2025-12-14'},
+    {id:'kapitalizm-i-shizofreniya', title:'Капитализм и шизофрения', author:'Жиль Делёз, Феликс Гваттари', status:'proposed', proposedBy:'Eugene', note:'Два тома — «Анти-Эдип» и «Тысяча плато» — стоят на стыке марксистской критики капитализма и полемики с фрейдовским психоанализом: авторы показывают, как психоанализ сводит желание к семейной драме, упрощая и приручая его. Второй том вводит понятие ризомы — нелинейной, децентрализованной структуры мышления без единого центра. Тексты плотные, афористичные, требуют медленного чтения — читатели называют книгу скорее источником цитат, чем последовательным изложением. Livelib: 4.0/5 (103 оценки).', year:'1972–1980', genre:'философия', award:'', addedAt:'2025-12-21'},
+    {id:'ya-znachit-yastreb', title:'Я — значит ястреб', author:'Хелен Макдональд', status:'proposed', proposedBy:'Hexen', note:'После внезапной смерти отца Хелен Макдональд, чтобы справиться с горем, решает приручить ястреба-тетеревятника — одну из самых своенравных хищных птиц. Книга сплетает личную историю утраты с историей писателя Т. Х. Уайта, тоже когда-то пытавшегося приручить ястреба, и подробным, почти орнитологическим взглядом на природу. Лауреат премии Costa и Samuel Johnson Prize. Часть читателей находит её поэтичной и пронзительной, часть — красивой, но местами тягучей. FantLab: 6.33/9, Labirint: 8.77/10.', year:'2014', genre:'мемуары / нон-фикшн о природе', award:'Премия Costa 2014, Samuel Johnson Prize', addedAt:'2025-12-21'},
+    {id:'nepobedimoe-solntse', title:'Непобедимое солнце. Книга 1', author:'Виктор Пелевин', status:'proposed', proposedBy:'Julia', note:'Продвинутая московская блондинка Саша едет в путешествие, обещанное ей на индийской горе Аруначале лично Шивой, и по дороге встречает некроэмпатов, римских принцепсов, суфийских филологов и корпоративных анархистов. Пелевин исследует природу иллюзии — то, что Илон Маск называет компьютерной симуляцией, а религия — Мiром Божьим. Мнения разделились: одни хвалят философскую глубину и узнаваемый юмор, другие считают книгу рыхлой, с размытым сюжетом и избытком снов. Livelib: 3.8/5 (2600+ оценок).', year:'2020', genre:'постмодернистская проза', award:'', addedAt:'2025-12-21'},
+    {id:'epoha-nadzornogo-kapitalizma', title:'Эпоха надзорного капитализма', author:'Шошана Зубофф', status:'proposed', proposedBy:'Hexen', note:'Шошана Зубофф вводит термин «надзорный капитализм» — новая экономическая логика, при которой человеческий опыт добывается как бесплатное сырьё и превращается в поведенческие данные для предсказания и модификации нашего поведения. Она прослеживает, как эта модель выросла из Кремниевой долины и распространилась на всю экономику, создавая рынки «поведенческих фьючерсов» без демократического контроля. Читатели называют книгу важным источником для понимания слежки и приватности в цифровую эпоху, хотя некоторых утомляет тревожный тон. Livelib: 3.8/5.', year:'2019', genre:'нон-фикшн / социология технологий', award:'', addedAt:'2025-12-21'},
+    {id:'vsyo-iz-za-menya', title:'Всё из-за меня (но это не так)', author:'Брене Браун', status:'proposed', proposedBy:'Julia', note:'Брене Браун — исследовательница стыда и уязвимости — разбирает перфекционизм: миф о том, что если делать всё безупречно, можно избежать боли осуждения. Книга опирается на её многолетние исследования и личный опыт борьбы со страхами. Читатели хвалят глубину проработки темы стыда и то, как книга помогает выстроить к нему устойчивость; критики замечают, что фокус смещён больше на переживания самой Браун, чем на практические стратегии. Предлагалась как книга №1 клуба, но пока не прочитана. Livelib: 4.1/5 (167 оценок).', year:'2007', genre:'нон-фикшн / психология', award:'', addedAt:'2025-11-17'},
+    {id:'kogda-my-perestali', title:'Когда мы перестали понимать мир', author:'Бенхамен Лабатут', status:'proposed', proposedBy:'Hexen', note:'Чилийский писатель Лабатут смешивает документальную точность с художественным вымыслом, рассказывая о физиках и математиках XX века — Шварцшильде, Гейзенберге, Гротендике — чьи гениальные открытия граничили с безумием и разрушали их авторов. Книга — в шорт-листе Международного Букера-2021, переведена на 22 языка, входила в летний список чтения Барака Обамы и в топ-100 книг XXI века по версии The New York Times. Часть критиков считает избыток вымысла в изображении реальных людей проблематичным. Предлагалась, но клуб её не читал. Livelib: 4.1/5 (1413 оценок).', year:'2020', genre:'документальная проза', award:'Шорт-лист Международного Букера 2021', addedAt:'2025-11-17'},
+    {id:'dofanomika', title:'Дофаномика', author:'Егор Аполлонов', status:'proposed', proposedBy:'Julia', note:'Журналист Егор Аполлонов на кейсах российских и зарубежных брендов показывает, как нейромаркетологи используют дофаминовые крючки — от эффекта окситоцина на доверие до тестирования Google 50 оттенков синего для ссылок — чтобы управлять нашим вниманием и решениями. Книга опирается на исследования в нейрофизиологии, но во второй половине превращается в подборку списков и чек-листов без единой структуры. Livelib: 4.0/5 (268 оценок).', year:'2025', genre:'нон-фикшн / нейромаркетинг', award:'', addedAt:'2025-12-23'},
+    {id:'complexity', title:'Complexity: A Guided Tour', author:'Melanie Mitchell', status:'proposed', proposedBy:'Yesbol', note:'Мелани Митчелл — одна из ведущих исследовательниц теории сложности — проводит доступный тур по науке о сложных системах: как из простых правил и локальных взаимодействий рождается непредсказуемое, адаптивное поведение — у муравьёв, в мозге, в экономике, в интернете. Книга балансирует между популярным изложением и научной строгостью. Некоторые читатели находят её местами разрозненной, но большинство ценит широту охвата и ясность объяснений. Goodreads: 4.11/5 (3629 оценок).', year:'2009', genre:'научпоп / физика сложных систем', award:'', addedAt:'2025-12-23'},
+    {id:'something-deeply-hidden', title:'Something Deeply Hidden', author:'Sean Carroll', status:'proposed', proposedBy:'Yesbol', note:'Физик-теоретик Шон Кэрролл отстаивает многомировую интерпретацию квантовой механики — идею о том, что при каждом квантовом измерении вселенная расщепляется, и копии нас самих продолжают жить в параллельных ветвях. По пути он переписывает историю физики XX века и объясняет, почему большинство физиков долгое время избегало серьёзно обсуждать, что квантовая механика на самом деле означает. Goodreads: 4.08/5 (6438 оценок).', year:'2019', genre:'научпоп / квантовая физика', award:'', addedAt:'2025-12-23'},
+    {id:'giperion', title:'Гиперион', author:'Дэн Симмонс', status:'proposed', proposedBy:'Dima', note:'Шесть паломников — солдат, учёный, священник, поэт, детектив и консул — летят по поручению Гегемонии Человека к таинственным Гробницам Времени на планете Гиперион, где обитает механическое божество Шрайк. Каждый рассказывает свою историю, и вместе они складываются в мозаику о природе страдания, памяти и веры перед лицом технологической цивилизации на грани кризиса. Структура «Кентерберийских рассказов» в космоопере сделала роман культовым — но мнения предельно полярны: от «перевернул всё, что я знал о фантастике» до резкого неприятия за обилие флешбэков и отложенную развязку.', year:'1989', genre:'научная фантастика (космоопера)', award:'Премия «Хьюго» 1990', addedAt:'2025-12-22'},
+    {id:'how-to-winter', title:'How to Winter', author:'Kari Leibowitz', status:'proposed', proposedBy:'Hexen', note:'Психолог Кари Лейбовиц несколько лет изучала, почему жители северной Норвегии, где зимой почти нет солнца, не более подвержены депрессии, чем жители тёплых стран — и обнаружила, что дело не в погоде, а в mindset. Книга учит воспринимать холод, темноту и замедление не как испытание, которое нужно пережить, а как естественную часть года со своими удовольствиями — от свечей до горячих напитков и медленных прогулок. Goodreads: 4.01/5 (3925 оценок).', year:'2024', genre:'нон-фикшн / психология', award:'', addedAt:'2025-12-24'},
+    {id:'empire-of-ai', title:'Empire of AI', author:'Karen Hao', status:'proposed', proposedBy:'Hexen', note:'Журналистка Карен Хао несколько лет освещала OpenAI изнутри и снаружи и в этой книге прослеживает, как стартап с миссией «безопасного ИИ на благо человечества» превратился в империю с имперскими амбициями — и какую цену за это платят климат, авторы разметки данных в Кении и общество в целом. Книга получила Национальную премию критиков США за нон-фикшн (2025) и премию Нью-Йоркской публичной библиотеки за журналистику (2026). Goodreads: 4.02/5 (14 500+ оценок).', year:'2025', genre:'журналистское расследование', award:'National Book Critics Circle Award 2025', addedAt:'2026-05-28'},
+    {id:'atlas-of-ai', title:'Atlas of AI', author:'Kate Crawford', status:'proposed', proposedBy:'Julia', note:'Кейт Кроуфорд разрушает миф об ИИ как о чём-то эфемерном и облачном, прослеживая его физическую основу: от добычи лития и редких металлов для чипов до низкооплачиваемого труда людей, размечающих данные и модерирующих контент, до огромного потребления энергии дата-центрами. Атлас в буквальном смысле — книга картирует планетарную инфраструктуру, которая стоит за каждым запросом к ИИ. Goodreads: 3.93/5 (3342 оценки).', year:'2021', genre:'нон-фикшн / технологии и общество', award:'', addedAt:'2026-05-28'},
+    {id:'ai-snake-oil', title:'AI Snake Oil', author:'Arvind Narayanan, Sayash Kapoor', status:'proposed', proposedBy:'Julia', note:'Профессора Принстона Арвинд Нараянан и Сайаш Капур методично разбирают разницу между ИИ, который реально работает (распознавание речи, перевод), и ИИ, который остаётся дорогим маркетинговым фокусом (предсказание рецидивов преступлений, «выявление» лжи или таланта по лицу). Книга — противоядие от одинаково крайних позиций техно-эйфории и техно-паники. Goodreads: 3.88/5 (2479 оценок).', year:'2024', genre:'нон-фикшн / технологии', award:'', addedAt:'2026-05-28'},
+    {id:'dolina-sovesti', title:'Долина совести', author:'Марина и Сергей Дяченко', status:'proposed', proposedBy:'Hexen', note:'Герой настолько талантлив и обаятелен, что каждый, кто оказывается на его пути, рискует жизнью — и чем ближе к нему подходишь, тем выше цена. Дяченко строят тревожный, вопрошающий роман почти без лишних сюжетных ходов: читатель находится в постоянном напряжении, анализируя поступки и мотивы героев. Критики называют роман неожиданно сильным и одним из самых цельных у авторов. FantLab: 8.37/10 (2107 оценок).', year:'2001', genre:'фантастика', award:'', addedAt:'2026-08-16'},
+    {id:'vita-nostra', title:'Vita Nostra', author:'Марина и Сергей Дяченко', status:'proposed', proposedBy:'Hexen', note:'После школы Сашу Самохину против воли заставляют поступить в странный Институт специальных технологий, где студенты постепенно перестают быть похожими на людей, а преподаватели — предположительно давно ими не являются. Первая книга трилогии «Метаморфозы» исследует идею о том, что Речь не просто описывает реальность, а создаёт её, и каждый студент — не более чем Слово или Грамматическая категория гипертекста. Большую часть романа читатель, как и героиня, не понимает, что происходит и зачем — это часть замысла. Livelib: 4.3/5 (761 отзыв).', year:'2007', genre:'фэнтези / магический реализм', award:'', addedAt:'2026-08-16'},
+    {id:'sato', title:'Сато', author:'Рагим Джафаров', status:'proposed', proposedBy:'Hexen', note:'Детский психолог начинает работать с мальчиком, который абсолютно уверен, что он — пленённый космический адмирал, а не ребёнок. Диссоциативное расстройство, шизофрения или что-то, чего современная психиатрия ещё не описала? Джафаров, сам практикующий психолог, серьёзно и без снисходительности исследует детскую травму и то, каково это — быть человеком двадцать четыре часа в сутки без перерывов. Первая половина держит в напряжении, вторая, по мнению части читателей, теряет темп. Livelib: 4.1/5 (118 отзывов).', year:'2020', genre:'психологическая проза', award:'Премия «Новые горизонты» 2021, приз читательских симпатий НОС 2021', addedAt:'2026-08-16'},
+    {id:'gen-rafaila', title:'Ген Рафаила', author:'Катя Качур', status:'proposed', proposedBy:'Hexen', note:'Тяжёлый, пронзительный роман о взрослении в семье, которая формирует тебя не всегда бережно — о памяти, что возвращается спустя годы, и о родителях, чьи травмы становятся твоими. Катя Качур пишет предельно простым языком, за которым, по словам читателей, скрывается неожиданная глубина. Мнения о стиле расходятся: одни называют его пронзительно честным, другие — недостаточно литературным. Livelib: 4.4/5, 6500+ оценок.', year:'2024', genre:'современная проза', award:'', addedAt:'2026-08-16'}
+  ];
+
+  const meetings = [
+    {id:'m1', when:'6 декабря 2025', sortKey:'2025-12-06', time:'16:00', place:'The Mitre, Richmond', mapUrl:'', bookIds:['centr-tyazhesti'], status:'past', notes:'Первая живая встреча клуба.'},
+    {id:'m2', when:'21 декабря 2025', sortKey:'2025-12-21', time:'16:00', place:'Rising Sun, Richmond', mapUrl:'', bookIds:[], status:'past', notes:'Предновогодняя встреча всей компанией — глинтвейн, пицца, UNO.'},
+    {id:'m3', when:'1 февраля 2026', sortKey:'2026-02-01', time:'16:45', place:'The Mute Swan, у Hampton Court Palace', mapUrl:'', bookIds:[], status:'past', notes:'После прогулки в Hampton Court — разговор ушёл в персидскую кухню.'},
+    {id:'m4', when:'16 августа 2026', sortKey:'2026-08-16', time:'11:00', place:'у моста, Richmond', mapUrl:'', bookIds:[], status:'past', notes:'Неполным составом — выбрали «Мову» и «Manna» на сентябрь.'},
+    {id:'m5', when:'12–13 сентября 2026', sortKey:'2026-09-12', time:'—', place:'Tide Tables Café, 2 The Arches, Richmond TW9 1TH', mapUrl:'', bookIds:['mova','manna'], status:'upcoming', notes:'Обычное место встреч клуба — буквально под мостом.'}
+  ];
+
+  const members = [
+    {id:'julia', displayName:'Julia', reading:'Пелевин, «Непобедимое солнце»', interests:'нон-фикшн о психологии и внимании, кулинария и разработка рецептов; курсирует между Лондоном и Стамбулом, где растут её сыновья'},
+    {id:'eugene', displayName:'Eugene', reading:'', interests:'заядлый читатель — 674 книги на Goodreads, философия и Делёз; по вторникам практикует интервальное голодание вместе с Юлией'},
+    {id:'hexen', displayName:'Hexen (Лена)', reading:'«Мова»', interests:'мотор клуба — организует встречи и голосования, находит все книги в epub; больше 10 лет играет в покер, любит настолки, гуляет по паркам Ричмонда с собакой Марой'},
+    {id:'dima', displayName:'Dima', reading:'', interests:'из Беларуси — переводит и поясняет белорусские реалии в «Мове»; часто задерживается на работе и пропускает будние встречи из-за корпоративных мероприятий'},
+    {id:'dina', displayName:'Dina', reading:'', interests:'прокладывает маршруты и уточняет детали перед встречами, дарит клубу шоколад и новогоднее настроение'},
+    {id:'yesbol', displayName:'Yesbol', reading:'', interests:'тянет клуб в сторону науки — предлагает книги о сложных системах и квантовой механике; доедает оливье ещё неделю после Нового года'},
+    {id:'veronika', displayName:'Veronika Morozova', reading:'', interests:'присоединилась в сентябре 2026 — читает десятками книг в год и щедро делится списками, от Джеймса Клавелла до Роулинг под псевдонимом Гэлбрейт'}
+  ];
+
+  const extras = [
+    {type:'podcast', title:'PHDEEP — подкаст философа, автора «Эпохи выгорающих супергероев»', url:'https://www.youtube.com/@PHDEEP', season:'', expiresAt:'', note:'Слушать во время прогулок.', addedBy:'Hexen'},
+    {type:'event', title:'Лекция Галины Юзефович про «Гарри Поттера»', url:'', season:'winter', expiresAt:'2026-01-29', note:'Idiot Books, 29 января 2026, 19:30.', addedBy:'Hexen'},
+    {type:'discount', title:'Hampton Court Palace — билеты за полцены', url:'https://www.hrp.org.uk/hampton-court-palace/whats-on/half-price-tickets/', season:'winter', expiresAt:'2026-02-06', note:'Акция Historic Royal Palaces.', addedBy:'Hexen'},
+    {type:'discount', title:'National Lottery Open Week — бесплатный вход в замки', url:'https://lotterygoodcauses.org.uk/open-week', season:'spring', expiresAt:'', note:'Покупаешь лотерейный билет — бесплатно посещаешь замок или усадьбу.', addedBy:'Hexen'},
+    {type:'event', title:'Isabella Plantation — цветение азалий и рододендронов', url:'', season:'spring', expiresAt:'', note:'Пик цветения обычно в середине–конце апреля, Richmond Park.', addedBy:'Eugene'},
+    {type:'event', title:'Фестиваль огней в Canary Wharf', url:'', season:'winter', expiresAt:'', note:'Проходит около недели в конце января.', addedBy:'Hexen'}
+  ];
+
+  await Promise.all(books.map(b=> db.doc('books/'+b.id).set(b)));
+  await Promise.all(meetings.map(m=> db.doc('meetings/'+m.id).set(m)));
+  await Promise.all(members.map(p=> db.doc('members/'+p.id).set({...p, joinedAt: p.id==='veronika' ? '2026-09-01' : '2025-11-01'})));
+  await Promise.all(extras.map((e,i)=> db.doc('extras/seed-'+i).set({...e, addedAt:new Date().toISOString()})));
+  await seedRef.set({seeded:true, at:new Date().toISOString()});
+}
+
+function subscribeAll(){
+  db.collection('books').onSnapshot(snap=>{
+    booksCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    renderHighlight();
+    if(activeTab==='books') renderBooks();
+  });
+  db.collection('votes').onSnapshot(snap=>{
+    votesCache = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    votesCache.forEach(v=> ensureBallotSub(v.id));
+    if(activeTab==='votes') renderVotes();
+  });
+  db.collection('meetings').onSnapshot(snap=>{
+    meetingsCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    meetingsCache.forEach(m=> ensureRsvpSub(m.id));
+    renderHighlight();
+    if(activeTab==='meetings') renderMeetings();
+  });
+  db.collection('members').onSnapshot(snap=>{
+    membersCache = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(a.displayName||'').localeCompare(b.displayName||''));
+    if(activeTab==='members') renderMembers();
+  });
+  db.collection('extras').onSnapshot(snap=>{
+    extrasCache = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
+    if(activeTab==='extras') renderExtras();
+  });
+}
+
+async function init(){
+  renderMe();
+  wireTabs();
+  renderHistory(); renderBooks(); renderVotes(); renderMeetings(); renderMembers(); renderExtras();
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    await seedIfNeeded();
+    subscribeAll();
+  }catch(e){
+    console.error('Firebase init failed', e);
+    const offlineMsg = '<div class="empty">Не получилось подключиться к базе данных. Обнови страницу, а если не поможет — напиши Юле.</div>';
+    document.getElementById('panel-books').innerHTML = offlineMsg;
+    document.getElementById('panel-history').insertAdjacentHTML('beforeend', offlineMsg);
+  }
+}
+init();
+</script>
+</body>
+</html>
