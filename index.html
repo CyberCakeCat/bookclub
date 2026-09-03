@@ -1132,6 +1132,7 @@ function renderAdmin(){
   }
   let html = '<div class="section-head"><h2>Админ-панель</h2></div>';
   html += '<p class="lottery-intro">Удаление необратимо — сайт переспросит перед каждым, но лишний раз подумай.</p>';
+  html += '<button class="btn-ghost" id="admin-logout-btn">Выйти из админа на этом устройстве</button>';
   html += renderAdminSection('Книги', 'books', booksCache, b=>'<div class="meeting-place">'+esc(b.title)+'</div><div class="book-meta">'+esc(b.author||'')+' · '+esc(b.status)+'</div>');
   html += renderAdminSection('Голосования', 'votes', votesCache, v=>'<div class="meeting-place">'+esc(v.question)+'</div><div class="book-meta">'+(v.status==='open'?'активно':'завершено')+'</div>');
   html += renderAdminSection('Встречи', 'meetings', meetingsCache, m=>'<div class="meeting-place">'+esc(m.when)+'</div><div class="book-meta">'+esc(m.place||'')+'</div>');
@@ -1144,6 +1145,13 @@ function renderAdmin(){
       await db.doc(btn.dataset.kind+'/'+btn.dataset.id).delete();
       toast('Удалено');
     });
+  });
+  document.getElementById('admin-logout-btn').addEventListener('click', ()=>{
+    if(!confirm('Выйти из админа на этом устройстве? Чтобы вернуться, нужно будет снова ввести имя «julia» и код.')) return;
+    localStorage.removeItem(ADMIN_KEY);
+    updateAdminTabVisibility();
+    setActiveTab('history');
+    toast('Доступ администратора выключен');
   });
 }
 
