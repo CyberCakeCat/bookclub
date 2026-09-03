@@ -58,6 +58,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tab-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;background:none;border:none;font-weight:700;font-size:0.85rem;color:var(--ink-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 .icon{width:17px;height:17px;flex-shrink:0;}
+.tab-btn[hidden]{display:none;}
 
 main{padding:8px 24px 20px;}
 .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 10px;}
@@ -254,6 +255,7 @@ textarea{resize:vertical;min-height:56px;font-family:var(--font-body);}
     <button class="tab-btn" data-tab="members"></button>
     <button class="tab-btn" data-tab="extras"></button>
     <button class="tab-btn" data-tab="lottery"></button>
+    <button class="tab-btn" data-tab="admin" id="admin-tab-btn" hidden></button>
   </nav>
   <main>
     <section class="tab-panel" id="panel-history"></section>
@@ -263,6 +265,7 @@ textarea{resize:vertical;min-height:56px;font-family:var(--font-body);}
     <section class="tab-panel" id="panel-members" hidden></section>
     <section class="tab-panel" id="panel-extras" hidden></section>
     <section class="tab-panel" id="panel-lottery" hidden></section>
+    <section class="tab-panel" id="panel-admin" hidden></section>
   </main>
 </div>
 <p class="app-footer">Имена — без пароля, на честном слове. Каждый может проголосовать один раз и передумать в любой момент. Все видят изменения сразу.</p>
@@ -289,6 +292,7 @@ const ICONS = {
   compass:'<circle cx="12" cy="12" r="8"/><path d="M14.6 9.4l-2.1 5.2-3.1 1.5 2.1-5.2z"/>',
   bridge:'<path d="M3 16h18"/><path d="M5 16c0-5 3.5-9 7-9s7 4 7 9"/><path d="M7 16v3"/><path d="M17 16v3"/>',
   dice:'<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="8.5" cy="8.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.1" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.1" fill="currentColor"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
   plus:'<path d="M12 5v14M5 12h14"/>'
 };
 function icon(name){
@@ -343,6 +347,43 @@ function renderMe(){
   }
 }
 
+const ADMIN_KEY='bc_is_admin';
+const ADMIN_NAME='julia';
+const ADMIN_CODE='060988';
+function isAdmin(){ return localStorage.getItem(ADMIN_KEY)==='1'; }
+function updateAdminTabVisibility(){
+  const btn = document.getElementById('admin-tab-btn');
+  if(btn) btn.hidden = !isAdmin();
+}
+
+async function finalizeNameEntry(v, cb){
+  setMyNameStored(v);
+  await upsertMember(v);
+  closeModal();
+  renderMe();
+  updateAdminTabVisibility();
+  cb(v);
+}
+
+function openAdminCodeModal(name, cb){
+  openModal(
+    '<h3>Код доступа</h3>'+
+    '<p class="modal-sub">Для этого имени нужен код администратора.</p>'+
+    '<div class="field"><label>Код</label><input id="admin-code-input" type="password" inputmode="numeric" maxlength="20"/></div>'+
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="admin-code-save">Продолжить</button></div>'
+  );
+  const input = document.getElementById('admin-code-input');
+  input.focus();
+  const submit = async ()=>{
+    const ok = input.value === ADMIN_CODE;
+    if(ok) localStorage.setItem(ADMIN_KEY, '1');
+    await finalizeNameEntry(name, cb);
+    if(ok) toast('Доступ администратора включён');
+  };
+  document.getElementById('admin-code-save').addEventListener('click', submit);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+}
+
 function requireName(cb){
   const existing = getMyName();
   if(existing){ cb(existing); return; }
@@ -359,11 +400,11 @@ function requireName(cb){
   const save = async ()=>{
     const v = input.value.trim();
     if(!v){ input.focus(); return; }
-    setMyNameStored(v);
-    await upsertMember(v);
-    closeModal();
-    renderMe();
-    cb(v);
+    if(v.toLowerCase()===ADMIN_NAME){
+      openAdminCodeModal(v, cb);
+      return;
+    }
+    await finalizeNameEntry(v, cb);
   };
   document.getElementById('name-save-btn').addEventListener('click', save);
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') save(); });
@@ -394,7 +435,8 @@ const TAB_META = [
   {key:'meetings', label:'Встречи', icon:'calendar'},
   {key:'members', label:'Люди', icon:'people'},
   {key:'extras', label:'Вне книг', icon:'compass'},
-  {key:'lottery', label:'Лотерея', icon:'dice'}
+  {key:'lottery', label:'Лотерея', icon:'dice'},
+  {key:'admin', label:'Админ', icon:'lock'}
 ];
 
 function setActiveTab(key){
@@ -418,6 +460,7 @@ function renderActiveTab(){
   else if(activeTab==='members') renderMembers();
   else if(activeTab==='extras') renderExtras();
   else if(activeTab==='lottery') renderLottery();
+  else if(activeTab==='admin') renderAdmin();
 }
 
 function renderHighlight(){
@@ -1039,32 +1082,73 @@ function subscribeAll(){
     booksCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
     renderHighlight();
     if(activeTab==='books') renderBooks();
+    if(activeTab==='admin') renderAdmin();
   });
   db.collection('votes').onSnapshot(snap=>{
     votesCache = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
     votesCache.forEach(v=> ensureBallotSub(v.id));
     if(activeTab==='votes') renderVotes();
+    if(activeTab==='admin') renderAdmin();
   });
   db.collection('meetings').onSnapshot(snap=>{
     meetingsCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
     meetingsCache.forEach(m=> ensureRsvpSub(m.id));
     renderHighlight();
     if(activeTab==='meetings') renderMeetings();
+    if(activeTab==='admin') renderAdmin();
   });
   db.collection('members').onSnapshot(snap=>{
     membersCache = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(a.displayName||'').localeCompare(b.displayName||''));
     if(activeTab==='members') renderMembers();
+    if(activeTab==='admin') renderAdmin();
   });
   db.collection('extras').onSnapshot(snap=>{
     extrasCache = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
     if(activeTab==='extras') renderExtras();
+    if(activeTab==='admin') renderAdmin();
+  });
+}
+
+// ---- admin panel ----
+function renderAdminSection(title, kind, items, labelFn){
+  let html = '<div class="group-title">'+title+' <span class="count">'+items.length+'</span></div>';
+  if(!items.length){ html += '<div class="empty">Пусто.</div>'; return html; }
+  html += items.map(it=>
+    '<div class="meeting-row">'+
+      '<div class="meeting-body">'+labelFn(it)+'</div>'+
+      '<button class="btn-ghost" data-admin-del data-kind="'+kind+'" data-id="'+it.id+'">Удалить</button>'+
+    '</div>'
+  ).join('');
+  return html;
+}
+function renderAdmin(){
+  const panel = document.getElementById('panel-admin');
+  if(!isAdmin()){
+    panel.innerHTML = '<div class="section-head"><h2>Админ</h2></div><div class="empty">Нет доступа.</div>';
+    return;
+  }
+  let html = '<div class="section-head"><h2>Админ-панель</h2></div>';
+  html += '<p class="lottery-intro">Удаление необратимо — сайт переспросит перед каждым, но лишний раз подумай.</p>';
+  html += renderAdminSection('Книги', 'books', booksCache, b=>'<div class="meeting-place">'+esc(b.title)+'</div><div class="book-meta">'+esc(b.author||'')+' · '+esc(b.status)+'</div>');
+  html += renderAdminSection('Голосования', 'votes', votesCache, v=>'<div class="meeting-place">'+esc(v.question)+'</div><div class="book-meta">'+(v.status==='open'?'активно':'завершено')+'</div>');
+  html += renderAdminSection('Встречи', 'meetings', meetingsCache, m=>'<div class="meeting-place">'+esc(m.when)+'</div><div class="book-meta">'+esc(m.place||'')+'</div>');
+  html += renderAdminSection('Участники', 'members', membersCache, p=>'<div class="meeting-place">'+esc(p.displayName)+'</div>');
+  html += renderAdminSection('Вне книг', 'extras', extrasCache, e=>'<div class="meeting-place">'+esc(e.title)+'</div>');
+  panel.innerHTML = html;
+  panel.querySelectorAll('[data-admin-del]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm('Удалить безвозвратно?')) return;
+      await db.doc(btn.dataset.kind+'/'+btn.dataset.id).delete();
+      toast('Удалено');
+    });
   });
 }
 
 async function init(){
   renderMe();
   wireTabs();
-  renderHistory(); renderBooks(); renderVotes(); renderMeetings(); renderMembers(); renderExtras(); renderLottery();
+  updateAdminTabVisibility();
+  renderHistory(); renderBooks(); renderVotes(); renderMeetings(); renderMembers(); renderExtras(); renderLottery(); renderAdmin();
   try{
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
