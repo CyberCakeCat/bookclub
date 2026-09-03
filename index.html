@@ -346,10 +346,12 @@ function renderMe(){
 function requireName(cb){
   const existing = getMyName();
   if(existing){ cb(existing); return; }
+  const existingNames = membersCache.map(m=>m.displayName).filter(Boolean);
   openModal(
     '<h3>Как тебя записать?</h3>'+
     '<p class="modal-sub">Без пароля — просто имя, чтобы клуб видел, кто голосовал и кто идёт на встречу.</p>'+
-    '<div class="field"><label>Имя</label><input id="name-input" type="text" maxlength="40" placeholder="Например, Юля"/></div>'+
+    (existingNames.length? '<p class="modal-sub"><b>Проверь, нет ли тебя уже в списке:</b> '+existingNames.map(esc).join(', ')+'. Если есть — впиши имя точно так же, как там, иначе получится дубль.</p>' : '')+
+    '<div class="field"><label>Имя</label><input id="name-input" type="text" maxlength="40" placeholder="Например, Julia"/></div>'+
     '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="name-save-btn">Сохранить</button></div>'
   );
   const input = document.getElementById('name-input');
