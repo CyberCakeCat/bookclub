@@ -157,10 +157,6 @@ main{padding:8px 24px 20px;}
 .lottery-country{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;}
 .lottery-flag{font-size:2.1rem;line-height:1;}
 .lottery-country-name{font-family:var(--font-display);font-size:1.7rem;}
-.lottery-authors{display:flex;flex-direction:column;gap:10px;}
-.author-card{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;}
-.author-name{font-family:var(--font-display);font-size:1.02rem;}
-.author-note{font-size:0.78rem;color:var(--ink-muted);margin-top:2px;}
 .lottery-again{margin-top:20px;}
 
 .app-footer{max-width:980px;margin:36px auto 26px;padding:0 24px;text-align:center;font-size:0.74rem;color:var(--ink-muted);}
@@ -228,8 +224,6 @@ textarea{resize:vertical;min-height:56px;font-family:var(--font-body);}
   .modal{padding:20px 18px;max-height:88vh;}
   .modal-actions{flex-direction:column-reverse;}
   .modal-actions .btn{width:100%;justify-content:center;}
-  .author-card{flex-direction:column;align-items:flex-start;gap:8px;}
-  .author-card .btn-ghost{align-self:flex-end;}
 }
 </style>
 </head>
@@ -549,11 +543,11 @@ function openBookDetailModal(id){
     '<div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">Закрыть</button></div>'
   );
 }
-function openAddBookModal(name, prefillAuthor){
+function openAddBookModal(name){
   openModal(
     '<h3>Предложить книгу</h3>'+
     '<div class="field"><label>Название</label><input id="b-title" type="text" maxlength="120"/></div>'+
-    '<div class="field"><label>Автор</label><input id="b-author" type="text" maxlength="80" value="'+esc(prefillAuthor||'')+'"/></div>'+
+    '<div class="field"><label>Автор</label><input id="b-author" type="text" maxlength="80"/></div>'+
     '<div class="field"><label>Почему стоит прочитать (необязательно)</label><textarea id="b-note" maxlength="300"></textarea></div>'+
     '<div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-primary" id="b-save">Добавить в пул</button></div>'
   );
@@ -879,114 +873,23 @@ function openAddExtraModal(name){
 
 // ---- book lottery ----
 const COUNTRIES = [
-  {flag:'🇷🇺', name:'Россия', authors:[
-    {name:'Лев Толстой', note:'«Война и мир»'}, {name:'Фёдор Достоевский', note:'«Преступление и наказание»'},
-    {name:'Михаил Булгаков', note:'«Мастер и Маргарита»'}, {name:'Владимир Набоков', note:'«Лолита»'}, {name:'Виктор Пелевин', note:'«Generation "П"»'}
-  ]},
-  {flag:'🇧🇾', name:'Беларусь', authors:[
-    {name:'Светлана Алексиевич', note:'«У войны не женское лицо»'}, {name:'Виктор Мартинович', note:'«Мова»'}, {name:'Василь Быков', note:'«Сотников»'}
-  ]},
-  {flag:'🇺🇦', name:'Украина', authors:[
-    {name:'Сергей Жадан', note:'«Ворошиловград»'}, {name:'Оксана Забужко', note:'«Полевые исследования украинского секса»'}, {name:'Андрей Курков', note:'«Пикник на льду»'}
-  ]},
-  {flag:'🇬🇧', name:'Великобритания', authors:[
-    {name:'Чарльз Диккенс', note:'«Большие надежды»'}, {name:'Вирджиния Вулф', note:'«Миссис Дэллоуэй»'},
-    {name:'Кадзуо Исигуро', note:'«Остаток дня»'}, {name:'Джордж Оруэлл', note:'«1984»'}
-  ]},
-  {flag:'🇮🇪', name:'Ирландия', authors:[
-    {name:'Джеймс Джойс', note:'«Улисс»'}, {name:'Оскар Уайльд', note:'«Портрет Дориана Грея»'}, {name:'Салли Руни', note:'«Normal People»'}
-  ]},
-  {flag:'🇫🇷', name:'Франция', authors:[
-    {name:'Виктор Гюго', note:'«Отверженные»'}, {name:'Альбер Камю', note:'«Посторонний»'}, {name:'Мишель Уэльбек', note:'«Элементарные частицы»'}
-  ]},
-  {flag:'🇩🇪', name:'Германия', authors:[
-    {name:'Томас Манн', note:'«Волшебная гора»'}, {name:'Герман Гессе', note:'«Степной волк»'}, {name:'Патрик Зюскинд', note:'«Парфюмер»'}
-  ]},
-  {flag:'🇨🇿', name:'Чехия', authors:[
-    {name:'Франц Кафка', note:'«Процесс»'}, {name:'Милан Кундера', note:'«Невыносимая лёгкость бытия»'}, {name:'Богумил Грабал', note:'«Слишком шумное одиночество»'}
-  ]},
-  {flag:'🇦🇹', name:'Австрия', authors:[
-    {name:'Стефан Цвейг', note:'«Шахматная новелла»'}, {name:'Эльфрида Елинек', note:'«Пианистка»'}
-  ]},
-  {flag:'🇵🇱', name:'Польша', authors:[
-    {name:'Ольга Токарчук', note:'«Бегуны»'}, {name:'Станислав Лем', note:'«Солярис»'}, {name:'Чеслав Милош', note:'поэзия'}
-  ]},
-  {flag:'🇮🇹', name:'Италия', authors:[
-    {name:'Итало Кальвино', note:'«Невидимые города»'}, {name:'Умберто Эко', note:'«Имя розы»'}, {name:'Элена Ферранте', note:'«Моя гениальная подруга»'}
-  ]},
-  {flag:'🇪🇸', name:'Испания', authors:[
-    {name:'Мигель де Сервантес', note:'«Дон Кихот»'}, {name:'Карлос Руис Сафон', note:'«Тень ветра»'}, {name:'Артуро Перес-Реверте', note:'«Клуб Дюма»'}
-  ]},
-  {flag:'🇵🇹', name:'Португалия', authors:[
-    {name:'Жозе Сарамаго', note:'«Слепота»'}, {name:'Фернандо Пессоа', note:'«Книга непокоя»'}
-  ]},
-  {flag:'🇹🇷', name:'Турция', authors:[
-    {name:'Орхан Памук', note:'«Имя мне — Красный»'}, {name:'Элиф Шафак', note:'«Сорок правил любви»'}
-  ]},
-  {flag:'🇸🇪', name:'Швеция', authors:[
-    {name:'Астрид Линдгрен', note:'«Пеппи Длинныйчулок»'}, {name:'Стиг Ларссон', note:'«Девушка с татуировкой дракона»'}, {name:'Фредрик Бакман', note:'«Вторая жизнь Уве»'}
-  ]},
-  {flag:'🇳🇴', name:'Норвегия', authors:[
-    {name:'Кнут Гамсун', note:'«Голод»'}, {name:'Ю Несбё', note:'«Снеговик»'}, {name:'Карл Уве Кнаусгор', note:'«Моя борьба»'}
-  ]},
-  {flag:'🇮🇸', name:'Исландия', authors:[
-    {name:'Халлдоур Лакснесс', note:'нобелевский лауреат'}, {name:'Йон Кальман Стефаунссон', note:'«Сердце человека»'}
-  ]},
-  {flag:'🇺🇸', name:'США', authors:[
-    {name:'Эрнест Хемингуэй', note:'«Старик и море»'}, {name:'Фрэнсис Скотт Фицджеральд', note:'«Великий Гэтсби»'},
-    {name:'Тони Моррисон', note:'«Возлюбленная»'}, {name:'Курт Воннегут', note:'«Бойня номер пять»'}
-  ]},
-  {flag:'🇨🇦', name:'Канада', authors:[
-    {name:'Маргарет Этвуд', note:'«Рассказ служанки»'}, {name:'Элис Манро', note:'рассказы, Нобель-2013'}
-  ]},
-  {flag:'🇲🇽', name:'Мексика', authors:[
-    {name:'Октавио Пас', note:'поэзия, эссе'}, {name:'Хуан Рульфо', note:'«Педро Парамо»'}
-  ]},
-  {flag:'🇨🇴', name:'Колумбия', authors:[
-    {name:'Габриэль Гарсиа Маркес', note:'«Сто лет одиночества»'}
-  ]},
-  {flag:'🇦🇷', name:'Аргентина', authors:[
-    {name:'Хорхе Луис Борхес', note:'«Вымышленные истории»'}, {name:'Хулио Кортасар', note:'«Игра в классики»'}
-  ]},
-  {flag:'🇨🇱', name:'Чили', authors:[
-    {name:'Исабель Альенде', note:'«Дом духов»'}, {name:'Бенхамен Лабатут', note:'«Когда мы перестали понимать мир»'}, {name:'Пабло Неруда', note:'поэзия, Нобель'}
-  ]},
-  {flag:'🇧🇷', name:'Бразилия', authors:[
-    {name:'Пауло Коэльо', note:'«Алхимик»'}, {name:'Жоржи Амаду', note:'«Генералы песчаных карьеров»'}, {name:'Клариси Лиспектор', note:'«Час звезды»'}
-  ]},
-  {flag:'🇯🇵', name:'Япония', authors:[
-    {name:'Харуки Мураками', note:'«Норвежский лес»'}, {name:'Ясунари Кавабата', note:'Нобель-1968'}, {name:'Юкио Мисима', note:'«Золотой Храм»'}
-  ]},
-  {flag:'🇨🇳', name:'Китай', authors:[
-    {name:'Лю Цысинь', note:'«Задача трёх тел»'}, {name:'Мо Янь', note:'Нобель-2012'}
-  ]},
-  {flag:'🇰🇷', name:'Южная Корея', authors:[
-    {name:'Хан Ган', note:'«Вегетарианка», Нобель-2024'}, {name:'Чо Намджу', note:'«Ким Чжи Ён, 1982 года рождения»'}
-  ]},
-  {flag:'🇮🇳', name:'Индия', authors:[
-    {name:'Арундати Рой', note:'«Бог мелочей»'}, {name:'Салман Рушди', note:'«Дети полуночи»'}
-  ]},
-  {flag:'🇳🇬', name:'Нигерия', authors:[
-    {name:'Чимаманда Нгози Адичи', note:'«Половина жёлтого солнца»'}, {name:'Воле Шойинка', note:'Нобель-1986'}
-  ]},
-  {flag:'🇪🇬', name:'Египет', authors:[
-    {name:'Нагиб Махфуз', note:'«Каирская трилогия», Нобель'}
-  ]},
-  {flag:'🇮🇱', name:'Израиль', authors:[
-    {name:'Амос Оз', note:'«Повесть о любви и тьме»'}, {name:'Меир Шалев', note:'«Русский роман»'}
-  ]},
-  {flag:'🇰🇿', name:'Казахстан', authors:[
-    {name:'Абай Кунанбаев', note:'классик казахской поэзии'}, {name:'Мухтар Ауэзов', note:'«Путь Абая»'}
-  ]},
-  {flag:'🇦🇺', name:'Австралия', authors:[
-    {name:'Патрик Уайт', note:'Нобель-1973'}, {name:'Тим Уинтон', note:'«Дыхание»'}
-  ]}
+  {flag:'🇷🇺', name:'Россия'}, {flag:'🇧🇾', name:'Беларусь'}, {flag:'🇺🇦', name:'Украина'},
+  {flag:'🇬🇧', name:'Великобритания'}, {flag:'🇮🇪', name:'Ирландия'}, {flag:'🇫🇷', name:'Франция'},
+  {flag:'🇩🇪', name:'Германия'}, {flag:'🇨🇿', name:'Чехия'}, {flag:'🇦🇹', name:'Австрия'},
+  {flag:'🇵🇱', name:'Польша'}, {flag:'🇮🇹', name:'Италия'}, {flag:'🇪🇸', name:'Испания'},
+  {flag:'🇵🇹', name:'Португалия'}, {flag:'🇹🇷', name:'Турция'}, {flag:'🇸🇪', name:'Швеция'},
+  {flag:'🇳🇴', name:'Норвегия'}, {flag:'🇮🇸', name:'Исландия'}, {flag:'🇺🇸', name:'США'},
+  {flag:'🇨🇦', name:'Канада'}, {flag:'🇲🇽', name:'Мексика'}, {flag:'🇨🇴', name:'Колумбия'},
+  {flag:'🇦🇷', name:'Аргентина'}, {flag:'🇨🇱', name:'Чили'}, {flag:'🇧🇷', name:'Бразилия'},
+  {flag:'🇯🇵', name:'Япония'}, {flag:'🇨🇳', name:'Китай'}, {flag:'🇰🇷', name:'Южная Корея'},
+  {flag:'🇮🇳', name:'Индия'}, {flag:'🇳🇬', name:'Нигерия'}, {flag:'🇪🇬', name:'Египет'},
+  {flag:'🇮🇱', name:'Израиль'}, {flag:'🇰🇿', name:'Казахстан'}, {flag:'🇦🇺', name:'Австралия'}
 ];
 function renderLottery(){
   const panel = document.getElementById('panel-lottery');
   panel.innerHTML =
     '<div class="section-head"><h2>Книжная лотерея</h2></div>'+
-    '<p class="lottery-intro">Жмёшь кнопку — получаешь случайную страну и несколько её лучших авторов. Выбираем следующую книгу из них.</p>'+
+    '<p class="lottery-intro">Жмёшь кнопку — получаешь случайную страну. Книгу и автора оттуда предлагаем сами.</p>'+
     '<div class="lottery-wrap"><button class="btn btn-primary lottery-btn" id="spin-btn">'+icon('dice')+'<span>Крутить лотерею</span></button></div>'+
     '<div id="lottery-result"></div>';
   document.getElementById('spin-btn').addEventListener('click', spinLottery);
@@ -997,19 +900,9 @@ function spinLottery(){
   el.innerHTML =
     '<div class="lottery-result">'+
       '<div class="lottery-country"><span class="lottery-flag">'+c.flag+'</span><span class="lottery-country-name">'+esc(c.name)+'</span></div>'+
-      '<div class="lottery-authors">'+
-        c.authors.map(a=>
-          '<div class="author-card"><div><div class="author-name">'+esc(a.name)+'</div>'+
-          (a.note? '<div class="author-note">'+esc(a.note)+'</div>' : '')+'</div>'+
-          '<button class="btn-ghost" data-quick-author="'+esc(a.name)+'">+ в предложенные</button></div>'
-        ).join('')+
-      '</div>'+
       '<button class="btn btn-ghost lottery-again" id="spin-again-btn">Крутить ещё раз</button>'+
     '</div>';
   document.getElementById('spin-again-btn').addEventListener('click', spinLottery);
-  el.querySelectorAll('[data-quick-author]').forEach(btn=>{
-    btn.addEventListener('click', ()=> requireName(name=> openAddBookModal(name, btn.dataset.quickAuthor)));
-  });
 }
 
 // ---- seed & init ----
